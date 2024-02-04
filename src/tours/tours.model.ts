@@ -3,9 +3,9 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'tour_content' })
 export class TourModel {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-    @Column({ type: 'text', nullable: false })
+    @PrimaryGeneratedColumn('increment')
+    id: number;
+    @Column({ type: 'text', nullable: false, unique: true })
     tour_slug: string;
     @Column({ type: 'text', nullable: false })
     tour_title: string;

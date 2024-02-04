@@ -24,7 +24,7 @@ export class S3Service {
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET
         },
-        region: 'us-east-1'
+        region: process.env.AWS_REGION
     });
 
     public async uploadFiles(files: any[]): Promise<AWS.AbortMultipartUploadCommandOutput[] | AWS.CompleteMultipartUploadCommandOutput[]> {

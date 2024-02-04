@@ -19,11 +19,6 @@ import { ToursModule } from './tours/tours.module';
       entities: ['dist/**/*.model.js'],
       migrationsRun: false,
       ssl: true,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false
-        }
-      },
       migrations: [
         "src/database/migrations/*.ts"
       ],

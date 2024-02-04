@@ -13,7 +13,7 @@ export class ToursService {
     async find(searchText?: string): Promise<TourModel[]> {
         let result = [];
         
-        result = await this.tourRepository.find();
+        result = (await this.tourRepository.find()) as TourModel[];
 
         if (searchText) {
           const filteredResult = result.filter((user) => {
@@ -22,5 +22,9 @@ export class ToursService {
           return filteredResult;
         }
         return result;
+    }
+    
+    findOne(slug: string): Promise<TourModel | null> {
+        return this.tourRepository.findOneBy({ tour_slug: slug });
       }
 }
