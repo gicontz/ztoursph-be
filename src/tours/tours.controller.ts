@@ -10,25 +10,27 @@ export class ToursController {
     constructor(private readonly toursService: ToursService, private readonly s3Service: S3Service) {}
 
     @Get('/')
-    async getTours(): Promise<TResponseData> {
+    @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
+    async getTours(@Query('hasGallery') hasGallery?: boolean): Promise<TResponseData> {
         const BUCKET_NAME = process.env.AWS_S3_BUCKET;
         const tours = await this.toursService.find();
         const galleryImageIds = [...Array(9).keys()].map(i => `image${i + 1}`);
         
         const imaged_tours = await Promise.all(tours.map(async (data) => {
             const { tour_slug, tour_title, tour_banner_image, package_details, price, discount } = data;
-                return ({
+                const tour = {
                     tour_slug,
                     tour_title,
                     package_details,
                     price,
                     discount,
                     tour_banner_image: await this.s3Service.getFileURI(tour_banner_image, BUCKET_NAME),
-                    gallery: await Promise.all(galleryImageIds.map(async gId => {
-                        const galleryImage = await this.s3Service.getFileURI(data[gId], BUCKET_NAME);
-                        return galleryImage;
-                    }))
-                })
+                    gallery: []
+                };
+                if (hasGallery) tour.gallery = await Promise.all(galleryImageIds.map(async gId => {
+                    const galleryImage = await this.s3Service.getFileURI(data[gId], BUCKET_NAME);
+                    return galleryImage;
+                }))
             }
         ));
 
