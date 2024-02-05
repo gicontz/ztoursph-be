@@ -30,7 +30,8 @@ export class ToursController {
                 if (hasGallery) tour.gallery = await Promise.all(galleryImageIds.map(async gId => {
                     const galleryImage = await this.s3Service.getFileURI(data[gId], BUCKET_NAME);
                     return galleryImage;
-                }))
+                }));
+                return tour;
             }
         ));
 
