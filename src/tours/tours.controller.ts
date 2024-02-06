@@ -2,21 +2,20 @@ import { Controller, Get, HttpStatus, Inject, Query } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { ToursService } from './tours.service';
-import { S3Service } from 'src/aws-sdk/s3.object';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import global from '@config/global';
+import { S3BucketService } from 'src/middlewares/s3.service';
 
 @ApiTags('Tours')
 @Controller('tours')
 export class ToursController {
-    constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache, private readonly toursService: ToursService, private readonly s3Service: S3Service) {}
+    constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache, private readonly toursService: ToursService, private readonly s3Service: S3BucketService) {}
 
     @Get('/')
     @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
     async getTours(@Query('hasGallery') hasGallery?: boolean): Promise<TResponseData> {
         const cacheKey = `tours${hasGallery ? '-hasGallery' : ''}`;
-        const BUCKET_NAME = process.env.AWS_S3_BUCKET;
         const dataFromCache = await this.cacheManager.get(cacheKey);
         if (dataFromCache) {
             return {
@@ -38,11 +37,11 @@ export class ToursController {
                     package_details,
                     price,
                     discount,
-                    tour_banner_image: await this.s3Service.getFileURI(tour_banner_image, BUCKET_NAME),
+                    tour_banner_image: await this.s3Service.getImage(tour_banner_image),
                     gallery: []
                 };
                 if (hasGallery) tour.gallery = await Promise.all(galleryImageIds.map(async gId => {
-                    const galleryImage = await this.s3Service.getFileURI(data[gId], BUCKET_NAME);
+                    const galleryImage = await this.s3Service.getImage(data[gId]);
                     return galleryImage;
                 }));
                 return tour;
@@ -70,7 +69,6 @@ export class ToursController {
             message: 'Tour Retrieved Successfully.',
             data: { ...dataFromCache as any}
         }
-        const BUCKET_NAME = process.env.AWS_S3_BUCKET;
         const tour = await this.toursService.findOne(slug);
         if (!tour) return {
             status: HttpStatus.NOT_FOUND,
@@ -84,9 +82,9 @@ export class ToursController {
                     package_details,
                     price,
                     discount,
-                    tour_banner_image: await this.s3Service.getFileURI(tour_banner_image, BUCKET_NAME),
+                    tour_banner_image: await this.s3Service.getImage(tour_banner_image),
                     gallery: await Promise.all(galleryImageIds.map(async gId => {
-                        const galleryImage = await this.s3Service.getFileURI(tour[gId], BUCKET_NAME);
+                        const galleryImage = await this.s3Service.getImage(tour[gId]);
                         return galleryImage;
                     }))
                 };
