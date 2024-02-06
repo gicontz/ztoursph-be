@@ -4,11 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ToursModule } from './tours/tours.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 // console.log(process.env);
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule.register(),
+    ConfigModule.forRoot({ cache: true, isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

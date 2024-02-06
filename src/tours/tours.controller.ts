@@ -1,18 +1,33 @@
-import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Inject, Query } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { ToursService } from './tours.service';
 import { S3Service } from 'src/aws-sdk/s3.object';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import global from '@config/global';
 
 @ApiTags('Tours')
 @Controller('tours')
 export class ToursController {
-    constructor(private readonly toursService: ToursService, private readonly s3Service: S3Service) {}
+    constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache, private readonly toursService: ToursService, private readonly s3Service: S3Service) {}
 
     @Get('/')
     @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
     async getTours(@Query('hasGallery') hasGallery?: boolean): Promise<TResponseData> {
+        const cacheKey = `tours${hasGallery ? '-hasGallery' : ''}`;
         const BUCKET_NAME = process.env.AWS_S3_BUCKET;
+        const dataFromCache = await this.cacheManager.get(cacheKey);
+        if (dataFromCache) {
+            console.log(dataFromCache);
+            return {
+                status: HttpStatus.OK,
+                message: 'Tour Retrieved Successfully.',
+                data: {
+                    ...dataFromCache as any,
+                },
+            };
+        }
         const tours = await this.toursService.find();
         const galleryImageIds = [...Array(9).keys()].map(i => `image${i + 1}`);
         
@@ -35,6 +50,8 @@ export class ToursController {
             }
         ));
 
+        await this.cacheManager.set(cacheKey, imaged_tours, global.cache.ttl);
+
         return {
             status: HttpStatus.OK,
             message: 'Tour Retrieved Successfully.',
@@ -47,6 +64,13 @@ export class ToursController {
     @Get('/info')
     @ApiQuery({ name: 'tour_slug', type: 'String', required: true })
     async getTourBySlug(@Query('tour_slug') slug: string): Promise<TResponseData> {
+        const cacheKey = `tour-info-${slug}`;
+        const dataFromCache = await this.cacheManager.get(cacheKey);
+        if (dataFromCache) return {
+            status: HttpStatus.OK,
+            message: 'Tour Retrieved Successfully.',
+            data: { ...dataFromCache as any}
+        }
         const BUCKET_NAME = process.env.AWS_S3_BUCKET;
         const tour = await this.toursService.findOne(slug);
         if (!tour) return {
@@ -67,6 +91,8 @@ export class ToursController {
                         return galleryImage;
                     }))
                 };
+        
+        await this.cacheManager.set(cacheKey, imaged_tour, global.cache.ttl);
 
         return {
             status: HttpStatus.OK,
