@@ -19,7 +19,6 @@ export class ToursController {
         const BUCKET_NAME = process.env.AWS_S3_BUCKET;
         const dataFromCache = await this.cacheManager.get(cacheKey);
         if (dataFromCache) {
-            console.log(dataFromCache);
             return {
                 status: HttpStatus.OK,
                 message: 'Tour Retrieved Successfully.',
