@@ -9,6 +9,7 @@ import * as AWS from '@aws-sdk/client-s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import global from '@config/global';
 
 export type TFile = {
     bucketname: string;
@@ -48,8 +49,8 @@ export class S3Service {
     public async getFileURI(Key: string, Bucket: string): Promise<string>{
         const data = await getSignedUrl(this.s3, new GetObjectCommand({
             Bucket,
-            Key
-        }));
+            Key,
+        }), { expiresIn: global.cache.ttl });
 
         return data;
     }
