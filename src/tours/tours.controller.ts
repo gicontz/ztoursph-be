@@ -4,12 +4,13 @@ import { TResponseData } from 'src/http.types';
 import { ToursService } from './tours.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import global from '@config/global';
+import config from '@config/config';
 import { S3BucketService } from 'src/middlewares/s3.service';
 
 @ApiTags('Tours')
 @Controller('tours')
 export class ToursController {
+    private cnfg = config();
     constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache, private readonly toursService: ToursService, private readonly s3Service: S3BucketService) {}
 
     @Get('/')
@@ -48,7 +49,7 @@ export class ToursController {
             }
         ));
 
-        await this.cacheManager.set(cacheKey, imaged_tours, global.cache.ttl);
+        await this.cacheManager.set(cacheKey, imaged_tours, this.cnfg.cache.ttl);
 
         return {
             status: HttpStatus.OK,
@@ -89,7 +90,7 @@ export class ToursController {
                     }))
                 };
         
-        await this.cacheManager.set(cacheKey, imaged_tour, global.cache.ttl);
+        await this.cacheManager.set(cacheKey, imaged_tour, this.cnfg.cache.ttl);
 
         return {
             status: HttpStatus.OK,
