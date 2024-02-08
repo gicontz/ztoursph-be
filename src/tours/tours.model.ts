@@ -35,4 +35,6 @@ export class TourModel {
     image8: string;
     @Column({ type: 'text', nullable: false })
     image9: string;
+    @Column({ type: 'text', nullable: false })
+    thumbnail: string;
 }

@@ -15,8 +15,10 @@ export class ToursController {
 
     @Get('/')
     @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
-    async getTours(@Query('hasGallery') hasGallery?: boolean): Promise<TResponseData> {
-        const cacheKey = `tours${hasGallery ? '-hasGallery' : ''}`;
+    @ApiQuery({ name: 'pageNumber', type: 'Integer', required: false })
+    @ApiQuery({ name: 'pageSize', type: 'Integer', required: false })
+    async getTours(@Query('hasGallery') hasGallery?: boolean, @Query('pageNumber') pageNumber?: number, @Query('pageSize') pageSize?: number): Promise<TResponseData> {
+        const cacheKey = `tours${hasGallery ? '-hasGallery' : ''}-${pageSize}-${pageNumber}`;
         const dataFromCache = await this.cacheManager.get(cacheKey);
         if (dataFromCache) {
             return {
@@ -27,12 +29,17 @@ export class ToursController {
                 },
             };
         }
-        const tours = await this.toursService.find();
+        const tours = await this.toursService.find({
+            pageNumber,
+            pageSize
+        });
         const galleryImageIds = [...Array(9).keys()].map(i => `image${i + 1}`);
         
-        const imaged_tours = await Promise.all(tours.map(async (data) => {
-            const { tour_slug, tour_title, tour_banner_image, package_details, price, discount } = data;
+        const imaged_tours = await Promise.all(tours.records.map(async (data) => {
+            const { id, tour_slug, tour_title, thumbnail, tour_banner_image, package_details, price, discount } = data;
                 const tour = {
+                    id,
+                    thumbnail: await this.s3Service.getImage(thumbnail),
                     tour_slug,
                     tour_title,
                     package_details,
@@ -55,7 +62,8 @@ export class ToursController {
             status: HttpStatus.OK,
             message: 'Tour Retrieved Successfully.',
             data: {
-                ...imaged_tours,
+                records: [...imaged_tours],
+                totalRecords: tours.totalRecords,
             },
         };
     };
@@ -75,9 +83,11 @@ export class ToursController {
             status: HttpStatus.NOT_FOUND,
             message: 'Tour Not Found',
         }
-        const { tour_slug, tour_title, tour_banner_image, package_details, price, discount } = tour;
+        const { id, tour_slug, tour_title, tour_banner_image, thumbnail, package_details, price, discount } = tour;
         const galleryImageIds = [...Array(9).keys()].map(i => `image${i + 1}`);
         const imaged_tour = {
+                    id,
+                    thumbnail: await this.s3Service.getImage(thumbnail),
                     tour_slug,
                     tour_title,
                     package_details,

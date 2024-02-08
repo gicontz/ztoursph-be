@@ -10,18 +10,37 @@ export class ToursService {
         private tourRepository: Repository<TourModel>,
       ) {}
     
-    async find(searchText?: string): Promise<TourModel[]> {
+    async find(options?: { searchText?: string, pageNumber?: number, pageSize?: number }): Promise<{ records: TourModel[], totalRecords: number }> {
         let result = [];
+        let totalRecords = 0;
+        const { searchText, pageNumber, pageSize } = options;
         
-        result = (await this.tourRepository.find()) as TourModel[];
+        if (pageNumber && pageSize) {
+          const [data, total ] = await this.tourRepository
+            .createQueryBuilder()
+            .orderBy('tour_slug', 'ASC')
+            .skip((pageNumber - 1) * pageSize)
+            .take(pageSize)
+            .getManyAndCount();
+          result = [...data];
+          totalRecords = total;
+        } else {
+          result = (await this.tourRepository.find()) as TourModel[];
+        }
 
         if (searchText) {
           const filteredResult = result.filter((user) => {
             return JSON.stringify(user).toLowerCase().includes(searchText.toLowerCase());
           });
-          return filteredResult;
+          return {
+            records: [...filteredResult],
+            totalRecords
+          };
         }
-        return result;
+        return {
+          records: [...result],
+          totalRecords
+        };;
     }
     
     findOne(slug: string): Promise<TourModel | null> {
