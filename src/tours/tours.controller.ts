@@ -15,9 +15,10 @@ export class ToursController {
 
     @Get('/')
     @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
+    @ApiQuery({ name: 'hasBanner', type: 'Boolean', required: false })
     @ApiQuery({ name: 'pageNumber', type: 'Integer', required: false })
     @ApiQuery({ name: 'pageSize', type: 'Integer', required: false })
-    async getTours(@Query('hasGallery') hasGallery?: boolean, @Query('pageNumber') pageNumber?: number, @Query('pageSize') pageSize?: number): Promise<TResponseData> {
+    async getTours(@Query('hasGallery') hasGallery?: boolean, @Query('hasBanner') hasBanner?: boolean, @Query('pageNumber') pageNumber?: number, @Query('pageSize') pageSize?: number): Promise<TResponseData> {
         const cacheKey = `tours${hasGallery ? '-hasGallery' : ''}-${pageSize}-${pageNumber}`;
         const dataFromCache = await this.cacheManager.get(cacheKey);
         if (dataFromCache) {
@@ -45,13 +46,14 @@ export class ToursController {
                     package_details,
                     price,
                     discount,
-                    tour_banner_image: await this.s3Service.getImage(tour_banner_image),
+                    tour_banner_image: '',
                     gallery: []
                 };
                 if (hasGallery) tour.gallery = await Promise.all(galleryImageIds.map(async gId => {
                     const galleryImage = await this.s3Service.getImage(data[gId]);
                     return galleryImage;
                 }));
+                if (hasBanner) tour.tour_banner_image = await this.s3Service.getImage(tour_banner_image);
                 return tour;
             }
         ));

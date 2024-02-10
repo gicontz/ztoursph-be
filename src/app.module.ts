@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ToursModule } from './tours/tours.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { PackagesModule } from './packages/packages.module';
 
-// console.log(process.env);
 @Module({
   imports: [
     CacheModule.register(),
@@ -27,6 +27,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       synchronize: false,
     }),
     ToursModule,
+    PackagesModule
   ],
   controllers: [AppController],
   providers: [AppService],
