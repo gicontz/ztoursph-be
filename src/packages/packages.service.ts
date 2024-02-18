@@ -45,5 +45,5 @@ export class PackagesService {
     
     findOne(slug: string): Promise<PackageModel | null> {
         return this.packageRepository.findOneBy({ package_slug: slug });
-      }
+    }
 }
