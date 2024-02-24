@@ -6,7 +6,7 @@ import { TCheckout } from './checkout.model';
 import { BookingsService } from 'src/bookings/bookings.service';
 import { PaymentStatus } from 'src/bookings/bookings.model';
 
-ApiTags('Checkout')
+@ApiTags('Checkout')
 @Controller('checkout')
 export class CheckoutController {
     constructor(

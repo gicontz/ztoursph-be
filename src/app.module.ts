@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ToursModule } from './tours/tours.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { PackagesModule } from './packages/packages.module';
-import { CheckoutController } from './checkout/checkout.controller';
 import { CheckoutModule } from './checkout/checkout.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { UsersModule } from './users/users.module';
@@ -34,9 +33,9 @@ import { UsersModule } from './users/users.module';
     PackagesModule,
     CheckoutModule,
     BookingsModule,
-    UsersModule
+    UsersModule,
   ],
-  controllers: [AppController, CheckoutController],
+  controllers: [],
   providers: [AppService],
 })
 
