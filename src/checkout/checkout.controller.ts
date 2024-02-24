@@ -40,6 +40,7 @@ export class CheckoutController {
         return {
             status: HttpStatus.ACCEPTED,
             message: 'Trips Checkout Successfully!',
+            data: newBooking
         }
 
     }
