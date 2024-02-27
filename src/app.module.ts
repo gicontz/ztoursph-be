@@ -9,6 +9,7 @@ import { PackagesModule } from './packages/packages.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { UsersModule } from './users/users.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
     CheckoutModule,
     BookingsModule,
     UsersModule,
+    PdfModule,
   ],
   controllers: [],
   providers: [AppService],
