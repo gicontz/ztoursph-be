@@ -12,7 +12,7 @@ export class PdfController {
   ) {}
   @Post()
   async getTest(@Body() body: { title: string }) {
-    const pdf = await this.PDFService.GeneratePDF(body.title, body.title);
+    const pdf = await this.PDFService.generatePDF(body.title, body.title);
     await this.s3Service.uploadFiles([pdf]);
     return this.seServiceBucket.getPDF(pdf.filename);
   }
