@@ -1,16 +1,18 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { UsersService } from 'src/users/users.service';
 import { TCheckout } from './checkout.model';
 import { BookingsService } from 'src/bookings/bookings.service';
 import { PaymentStatus } from 'src/bookings/bookings.model';
+import { MayaService } from 'src/third-party/maya-sdk/maya.service';
 
 @ApiTags('Checkout')
 @Controller('checkout')
 export class CheckoutController {
     constructor(
         private readonly userService: UsersService,
+        private readonly mayaService: MayaService,
         private readonly bookingService: BookingsService) {}
 
     @Post('/trips')
@@ -42,6 +44,11 @@ export class CheckoutController {
             message: 'Trips Checkout Successfully!',
             data: newBooking
         }
+    }
 
+    @Post('/payment')
+    async checkoutPayment(): Promise<TResponseData> {
+        const data = await this.mayaService.checkout();
+        return data;
     }
 }

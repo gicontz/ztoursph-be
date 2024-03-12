@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PackagesService } from './packages.service';
-import { S3Service } from 'src/aws-sdk/s3.object';
+import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { PackagesController } from './packages.controller';
 import { PackageModel } from './packages.model';
 import { CacheModule } from '@nestjs/cache-manager';

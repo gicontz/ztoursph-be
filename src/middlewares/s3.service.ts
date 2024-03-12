@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Service } from 'src/aws-sdk/s3.object';
+import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 
 @Injectable()
 export class S3BucketService {

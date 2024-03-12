@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { PdfService } from './pdf.service';
-import { S3Service } from 'src/aws-sdk/s3.object';
+import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { S3BucketService } from 'src/middlewares/s3.service';
 
 @Controller('pdf')
