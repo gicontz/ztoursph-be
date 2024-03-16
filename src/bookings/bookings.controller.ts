@@ -28,7 +28,7 @@ export class BookingsController {
 
   @Post('/info')
   @ApiBody({ required: true })
-  async getPackageBySlug(
+  async createBooking(
     @Body('booking') booking: { id: string },
   ): Promise<TResponseData> {
     const bookingId = booking.id;
@@ -46,13 +46,12 @@ export class BookingsController {
       const pdfFile = await this.s3ServiceMiddleware.uploadFiles([itinerary]);
 
       // Create a uri to that specific s3 file
-      console.log(this.s3Service.getPDF(pdfFile));
+      const itineraryFileUri = await this.s3Service.getPDF(pdfFile);
 
       return {
         status: HttpStatus.OK,
         message: 'Booking Information has been retrieved',
-        data: { ...bookingInfo },
-        // itinerary: this.s3Service.getPDF(pdfFile), //The link is passed then to the API
+        data: { ...bookingInfo, itineraryFileUri },
       };
     } catch (e) {
       return {

@@ -8,6 +8,7 @@
 import config from '@config/config';
 import { TResponseData } from 'src/http.types';
 import axios from 'axios';
+import { TPaymentResponse } from './maya.dto';
 
 export type TMayaPayment = {
     totalAmount: {
@@ -47,5 +48,9 @@ export class MayaService {
                 status: e.response.status,
             }
         }
+    }
+
+    public verifyPayment(res: TPaymentResponse) {
+        return res.status;
     }
 }

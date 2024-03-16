@@ -2,7 +2,7 @@
 export type TPaymentResponse = {
     id: string;
     isPaid: boolean;
-    status: string;
+    status: TPaymentStatus;
     amount: string;
     currency: string;
     canVoid: boolean;
@@ -34,4 +34,13 @@ export type TPaymentResponse = {
     approvalCode: string;
     receiptNumber: string;
     requestReferenceNumber: string;
+};
+
+export enum TPaymentStatus {
+    AUTHORIZED = 'AUTHORIZED',
+    CANCELLED = 'PAYMENT_CANCELLED',
+    EXPIRED = 'PAYMENT_EXPIRED',
+    PENDING = 'PENDING',
+    FAILED = 'PAYMENT_FAILED',
+    SUCCESS = 'PAYMENT_SUCCESS'
 };
