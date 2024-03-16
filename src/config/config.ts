@@ -10,6 +10,7 @@ export default () => ({
     },
     maya: {
       faceApi: process.env.MAYA_PUBLIC_FACE_API,
-      secretKey: process.env.MAYA_SECRET_API
+      secretKey: process.env.MAYA_SECRET_API,
+      checkoutApi: process.env.MAYA_CHECKOUT_API,
     }
 });
