@@ -24,7 +24,7 @@ export type TPaymentResponse = {
             issuer: string;
         }
     };
-    receipt: {
+    receipt?: {
         transactionId: string;
         receiptNo: string;
         approval_code: string;
@@ -32,7 +32,26 @@ export type TPaymentResponse = {
     };
     metadata: any;
     approvalCode: string;
-    receiptNumber: string;
+    receiptNumber?: string;
+    errorCode?: string;
+    errorMessage?: string;
+    requestReferenceNumber: string;
+};
+
+// Payment Expired Response from Maya
+export type TPaymentExpiredResponse = {
+    id: string;
+    isPaid: boolean;
+    status: TPaymentStatus;
+    amount: string;
+    currency: string;
+    canVoid: boolean;
+    canRefund: boolean;
+    canCapture: boolean;
+    createdAt: string;
+    updatedAt: string;
+    description: string;
+    paymentTokenId: string;
     requestReferenceNumber: string;
 };
 

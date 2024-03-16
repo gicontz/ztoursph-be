@@ -19,8 +19,8 @@ export class CheckoutService {
         return this.checkoutRepository.save(paymentInfo);
     }
 
-    update(bookingInfo: Partial<TPayment> & { id: string }): Promise<CheckoutModel> {
-        return this.checkoutRepository.save(bookingInfo);
+    update(paymentInfo: Partial<TPayment> & { referenceId: string }): Promise<CheckoutModel> {
+        return this.checkoutRepository.save(paymentInfo);
     } 
 
 }

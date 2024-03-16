@@ -20,9 +20,7 @@ export class BookingsService {
         return this.bookingRepository.save(info);
     }
 
-    update(bookingInfo: Partial<TBooking> & { id: string }): Promise<BookingModel> {
-        const info = {...bookingInfo, packages: ''};
-        info.packages = bookingInfo.packages.join(',');
-        return this.bookingRepository.save(info);
+    update(bookingInfo: Partial<TBooking>): Promise<BookingModel> {
+        return this.bookingRepository.save(bookingInfo as any);
     }
 }
