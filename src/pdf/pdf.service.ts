@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
+import { TPDFItenerary } from './pdf.dto';
 
 @Injectable()
 export class PdfService {
-  async generatePDF(
-    content: string,
+  async generateItenerary(
+    content: TPDFItenerary,
     filename: string,
     bucketname?: string | undefined,
   ): Promise<any> {
-    const doc = this.templatePDFDocument(content);
+    const doc = this.templatePDFItenerary(content);
     const buffer = await this.streamToBuffer(doc);
 
     return {
@@ -21,7 +22,9 @@ export class PdfService {
     };
   }
 
-  private templatePDFDocument(content: string): PDFKit.PDFDocument {
+  private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
+    const {ldguest,quantity,quantity_adult, quantity_minor, nationality, email, contact, tour_date, eta, etd, booked_tours} = content
+
     const doc = new PDFKit({ size: 'A7', margin: 30 });
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
@@ -125,7 +128,7 @@ export class PdfService {
     const div_4 = (x, y) => {
       // Lead Guest Value
       configureTextContent({
-        text: `${'John Doe'}`,
+        text: ldguest,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 36, y: MARGIN_Y + y },
@@ -134,7 +137,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: `${8}`,
+        text: quantity.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 19, y: MARGIN_Y + y + 5 },
@@ -143,7 +146,7 @@ export class PdfService {
 
       // Adult Value
       configureTextContent({
-        text: `${2}`,
+        text: quantity_adult.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 13, y: MARGIN_Y + y + 10 },
@@ -152,7 +155,7 @@ export class PdfService {
 
       // Minor/Kid Value
       configureTextContent({
-        text: '3 (4-7) ',
+        text: quantity_minor.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 20, y: MARGIN_Y + y + 15 },
@@ -161,7 +164,7 @@ export class PdfService {
 
       // Nationality Value
       configureTextContent({
-        text: 'Filipino/American ',
+        text: typeof nationality === 'string' ? nationality : nationality.join(', '),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 23, y: MARGIN_Y + y + 20 },
@@ -170,10 +173,7 @@ export class PdfService {
 
       // Tour Date Value
       configureTextContent({
-        text: new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'medium',
-          timeZone: 'Asia/Manila',
-        }).format(new Date()),
+        text: tour_date,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: JUSTIFY_END + x - 18, y: MARGIN_Y + y },
@@ -182,7 +182,7 @@ export class PdfService {
 
       // Email Value
       configureTextContent({
-        text: 'N/A',
+        text: email || 'N/A',
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 13, y: MARGIN_Y + y + 25 },
@@ -191,7 +191,7 @@ export class PdfService {
 
       // Contact Number Value
       configureTextContent({
-        text: '999999989',
+        text: contact.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 33, y: MARGIN_Y + y + 30 },
@@ -200,11 +200,7 @@ export class PdfService {
 
       // Departure Date Value
       configureTextContent({
-        text: `LIO Airport ${new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'short',
-          timeStyle: 'short',
-          timeZone: 'Asia/Manila',
-        }).format(new Date())}`,
+        text: eta,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 10 },
@@ -213,11 +209,7 @@ export class PdfService {
 
       // ETA Value
       configureTextContent({
-        text: `LIO Airport ${new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'short',
-          timeStyle: 'short',
-          timeZone: 'Asia/Manila',
-        }).format(new Date())}`,
+        text: etd,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 5 },
@@ -329,24 +321,12 @@ export class PdfService {
         ],
 
         datas: [
-          {
-            date: new Intl.DateTimeFormat('en-US', {
-              dateStyle: 'medium',
-              timeZone: 'Asia/Manila',
-            }).format(new Date()),
-            description:
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.  ',
-            time: new Intl.DateTimeFormat('en-US', {
-              timeStyle: 'medium',
-              timeZone: 'Asia/Manila',
-            }).format(new Date()),
-            subtotal: '1500',
-          },
+          ...booked_tours,
           {
             date: '',
             description: '',
             time: 'GrandTotal',
-            subtotal: '1500',
+            subtotal: booked_tours.reduce((acc, cur) => acc + Number(cur.subtotal), 0).toString(),
           },
         ],
       };
