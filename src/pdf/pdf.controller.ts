@@ -13,7 +13,7 @@ export class PdfController {
   ) {}
   @Post()
   async getTest(@Body() body: { content: TPDFItenerary }) {
-    const pdf = await this.PDFService.generateItenerary(body.content, body.content.ldguest);
+    const pdf = await this.PDFService.generateItenerary(body.content,"Test-PDF-03-05-2004");
     await this.s3Service.uploadFiles([pdf]);
     return this.seServiceBucket.getPDF(pdf.filename);
   }

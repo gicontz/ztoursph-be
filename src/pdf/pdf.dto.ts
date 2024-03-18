@@ -1,9 +1,10 @@
 export type TPDFItenerary = {
-    ldguest: string;
-    quantity: number
-    quantity_adult: number
-    quantity_minor:  number
-    nationality: string | string[]
+    guest: {
+        name: string;
+        lead_guest: boolean;
+        age: number;
+        nationality: string;
+    }[];
     email: string | undefined
     contact: number
     tour_date: string;

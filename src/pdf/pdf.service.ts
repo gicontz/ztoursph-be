@@ -23,21 +23,25 @@ export class PdfService {
   }
 
   private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
-    const {ldguest,quantity,quantity_adult, quantity_minor, nationality, email, contact, tour_date, eta, etd, booked_tours} = content
+    const {guest, email, contact, tour_date, eta, etd, booked_tours} = content
+    const leadGuest = guest.filter((guest => guest.lead_guest === true))[0]
+    const adults = guest.filter((guest) => guest.age >= 18);
+    const minors = guest.filter((guest) => guest.age < 18);
+    const nationality = Array.from(new Set(guest.map( e => e.nationality )))
 
-    const doc = new PDFKit({ size: 'A7', margin: 30 });
+    const paper = { size: 'A7', margin: 30 }
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
-
+    
     const FONT_HELVETICA = 'Helvetica';
     const FONT_COURIER = 'Courier';
     const FONT_HELVETICA_BOLD = 'Helvetica-Bold';
-
+    
     const MARGIN_X = 15;
     const MARGIN_Y = 20;
     const JUSTIFY_END = 160 + MARGIN_X;
     const ALIGN_END = 215 + MARGIN_Y;
     const FONT_SIZE = { small: 2, default: 3, medium: 4, large: 10 };
-
+    
     interface ConfigureTextContentProps {
       text: string;
       font?: string;
@@ -45,6 +49,8 @@ export class PdfService {
       position?: { x?: number; y?: number };
       options?: PDFKit.Mixins.TextOptions;
     }
+    
+    const doc = new PDFKit(paper);
 
     const configureTextContent = ({
       text,
@@ -128,7 +134,7 @@ export class PdfService {
     const div_4 = (x, y) => {
       // Lead Guest Value
       configureTextContent({
-        text: ldguest,
+        text: leadGuest.name,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 36, y: MARGIN_Y + y },
@@ -137,7 +143,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: quantity.toString(),
+        text: guest.length.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 19, y: MARGIN_Y + y + 5 },
@@ -146,7 +152,7 @@ export class PdfService {
 
       // Adult Value
       configureTextContent({
-        text: quantity_adult.toString(),
+        text: adults.length.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 13, y: MARGIN_Y + y + 10 },
@@ -155,7 +161,7 @@ export class PdfService {
 
       // Minor/Kid Value
       configureTextContent({
-        text: quantity_minor.toString(),
+        text: minors.length.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 20, y: MARGIN_Y + y + 15 },
@@ -166,7 +172,7 @@ export class PdfService {
       configureTextContent({
         text: typeof nationality === 'string' ? nationality : nationality.join(', '),
         font: FONT_HELVETICA,
-        size: fontSize.medium,
+        size: fontSize.medium, 
         position: { x: MARGIN_X + x + 23, y: MARGIN_Y + y + 20 },
         options: { width: 80 },
       });
@@ -392,10 +398,58 @@ export class PdfService {
         },
         options: { width: 40, align: 'center' },
       });
+      doc.page.margins.bottom = 30;
+    };
+
+    /**
+     * -- Masterlist --
+     * Fullname, Age, Nationality
+     */
+
+    const div_7 = async (x, y) => {
+      doc.addPage(paper)
+      const guestData = [...guest].map((e) => {
+          return {
+            name: e.name,
+            age: e.age.toString(),
+            nationality: e.nationality
+          }
+        })
+
+      const table = {
+        addPage: true,
+        headers: [
+          {
+            label: 'Name',
+            property: 'name',
+            width: 100,
+          },
+          { label: 'Age', property: 'age', width: 25 },
+          { label: 'Nationality', property: 'nationality', width: 54 },
+        ],
+
+        datas: guestData
+      };
+
+
+      configureTextContent({
+        text: 'Masterlist',
+        font: 'Helvetica-Bold',
+        size: fontSize.medium + 2,
+        position: { x: 154 / 2 - x, y: MARGIN_Y + y },
+        options: { width: 55, align: 'center' },
+      });
+
+      await doc.table(table, {
+        x: MARGIN_X + x,
+        y: MARGIN_Y + y + 15,
+        prepareHeader: () => doc.font('Helvetica').fontSize(fontSize.medium),
+        prepareRow: () => doc.font('Helvetica').fontSize(fontSize.default),
+      });
     };
 
     const addDivContent = function (func, x, y) {
-      return func(x, y);
+      return func(x, y);  
     };
 
     addDivContent(div_1, 0, 0);
@@ -404,6 +458,7 @@ export class PdfService {
     addDivContent(div_4, 0, 30);
     addDivContent(div_5, 0, 75);
     addDivContent(div_6, 0, 30);
+    addDivContent(div_7, 0, 0);
 
     doc.end();
 
