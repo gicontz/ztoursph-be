@@ -23,11 +23,11 @@ export class PdfService {
   }
 
   private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
-    const {guest, email, contact, tour_date, eta, etd, booked_tours} = content
-    const leadGuest = guest.filter((guest => guest.lead_guest === true))[0]
-    const adults = guest.filter((guest) => guest.age >= 18);
-    const minors = guest.filter((guest) => guest.age < 18);
-    const nationality = Array.from(new Set(guest.map( e => e.nationality )))
+    const {lastname, firstname, middleInitial, age, guests, email, mobileNumber1, nationality, mobileNumber2, tour_date, booked_tours} = content
+    const leadGuest = [lastname, firstname, middleInitial].join(' ');
+    const adults = guests.filter((guest) => guest.age >= 18).length;
+    const minors = guests.filter((guest) => guest.age < 18).length;
+    const nationalityUnique = Array.from(new Set([nationality, ...guests.map(e => e.nationality)]));
 
     const paper = { size: 'A7', margin: 30 }
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
@@ -43,7 +43,7 @@ export class PdfService {
     const FONT_SIZE = { small: 2, default: 3, medium: 4, large: 10 };
     
     interface ConfigureTextContentProps {
-      text: string;
+      text: any;
       font?: string;
       size?: number;
       position?: { x?: number; y?: number };
@@ -134,7 +134,7 @@ export class PdfService {
     const div_4 = (x, y) => {
       // Lead Guest Value
       configureTextContent({
-        text: leadGuest.name,
+        text: leadGuest,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 36, y: MARGIN_Y + y },
@@ -143,7 +143,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: guest.length.toString(),
+        text: guests.length,
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 19, y: MARGIN_Y + y + 5 },
@@ -152,7 +152,7 @@ export class PdfService {
 
       // Adult Value
       configureTextContent({
-        text: adults.length.toString(),
+        text: adults.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 13, y: MARGIN_Y + y + 10 },
@@ -161,7 +161,7 @@ export class PdfService {
 
       // Minor/Kid Value
       configureTextContent({
-        text: minors.length.toString(),
+        text: minors.toString(),
         font: FONT_HELVETICA,
         size: fontSize.medium,
         position: { x: MARGIN_X + x + 20, y: MARGIN_Y + y + 15 },
@@ -170,7 +170,7 @@ export class PdfService {
 
       // Nationality Value
       configureTextContent({
-        text: typeof nationality === 'string' ? nationality : nationality.join(', '),
+        text: typeof nationalityUnique === 'string' ? nationalityUnique : nationalityUnique.join(', '),
         font: FONT_HELVETICA,
         size: fontSize.medium, 
         position: { x: MARGIN_X + x + 23, y: MARGIN_Y + y + 20 },
@@ -197,30 +197,38 @@ export class PdfService {
 
       // Contact Number Value
       configureTextContent({
-        text: contact.toString(),
+        text: mobileNumber1,
         font: FONT_HELVETICA,
         size: fontSize.medium,
-        position: { x: MARGIN_X + x + 33, y: MARGIN_Y + y + 30 },
+        position: { x: MARGIN_X + x + 35, y: MARGIN_Y + y + 30 },
+        options: { width: 80 },
+      });
+      // Contact Number Value
+      configureTextContent({
+        text: mobileNumber2,
+        font: FONT_HELVETICA,
+        size: fontSize.medium,
+        position: { x: MARGIN_X + x + 35, y: MARGIN_Y + y + 35 },
         options: { width: 80 },
       });
 
-      // Departure Date Value
-      configureTextContent({
-        text: eta,
-        font: FONT_HELVETICA,
-        size: fontSize.medium,
-        position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 10 },
-        options: { width: 80 },
-      });
+      // // Departure Date Value
+      // configureTextContent({
+      //   text: eta,
+      //   font: FONT_HELVETICA,
+      //   size: fontSize.medium,
+      //   position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 10 },
+      //   options: { width: 80 },
+      // });
 
-      // ETA Value
-      configureTextContent({
-        text: etd,
-        font: FONT_HELVETICA,
-        size: fontSize.medium,
-        position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 5 },
-        options: { width: 80 },
-      });
+      // // ETA Value
+      // configureTextContent({
+      //   text: etd,
+      //   font: FONT_HELVETICA,
+      //   size: fontSize.medium,
+      //   position: { x: JUSTIFY_END + x - 30, y: MARGIN_Y + y + 5 },
+      //   options: { width: 80 },
+      // });
 
       //Boilerplates
       configureTextContent({
@@ -272,10 +280,18 @@ export class PdfService {
       });
 
       configureTextContent({
-        text: 'Contact Number: ',
+        text: 'Mobile Number 1: ',
         font: FONT_HELVETICA_BOLD,
         size: fontSize.medium,
         position: { x: MARGIN_X + x, y: MARGIN_Y + y + 30 },
+        options: { width: 80 },
+      });
+
+      configureTextContent({
+        text: 'Mobile Number 2: ',
+        font: FONT_HELVETICA_BOLD,
+        size: fontSize.medium,
+        position: { x: MARGIN_X + x, y: MARGIN_Y + y + 35 },
         options: { width: 80 },
       });
 
@@ -287,21 +303,21 @@ export class PdfService {
         options: { width: 80 },
       });
 
-      configureTextContent({
-        text: 'ETA: ',
-        font: FONT_HELVETICA_BOLD,
-        size: fontSize.medium,
-        position: { x: JUSTIFY_END + x - 40, y: MARGIN_Y + y + 5 },
-        options: { width: 80 },
-      });
+      // configureTextContent({
+      //   text: 'ETA: ',
+      //   font: FONT_HELVETICA_BOLD,
+      //   size: fontSize.medium,
+      //   position: { x: JUSTIFY_END + x - 40, y: MARGIN_Y + y + 5 },
+      //   options: { width: 80 },
+      // });
 
-      configureTextContent({
-        text: 'ETD: ',
-        font: FONT_HELVETICA_BOLD,
-        size: fontSize.medium,
-        position: { x: JUSTIFY_END + x - 40, y: MARGIN_Y + y + 10 },
-        options: { width: 80 },
-      });
+      // configureTextContent({
+      //   text: 'ETD: ',
+      //   font: FONT_HELVETICA_BOLD,
+      //   size: fontSize.medium,
+      //   position: { x: JUSTIFY_END + x - 40, y: MARGIN_Y + y + 10 },
+      //   options: { width: 80 },
+      // });
     };
 
     const div_5 = async (x, y) => {
@@ -313,8 +329,9 @@ export class PdfService {
             property: 'date',
             width: 30,
           },
-          { label: 'Description', property: 'description', width: 85 },
+          { label: 'Description', property: 'description', width: 60 },
           { label: 'Time', property: 'time', width: 40 },
+          { label: 'Pax', property: 'pax', width: 20},
           {
             label: 'Sub-Total',
             property: 'subtotal',
@@ -327,17 +344,25 @@ export class PdfService {
         ],
 
         datas: [
-          ...booked_tours,
+          ...booked_tours.map((tour) => ({
+            date: tour.date,
+            description: tour.description,
+            time: tour.time,
+            pax: tour.pax.toString(),
+            subtotal: tour.subtotal,
+          })),
           {
             date: '',
             description: '',
-            time: 'GrandTotal',
+            time: '',
+            pax:'GrandTotal',
             subtotal: booked_tours.reduce((acc, cur) => acc + Number(cur.subtotal), 0).toString(),
           },
         ],
       };
       // the magic (async/await)
-      await doc.table(table, {
+
+      await doc.table({ ...table }, {
         x: MARGIN_X + x,
         y: MARGIN_Y + y,
         prepareHeader: () => doc.font('Helvetica').fontSize(fontSize.medium),
@@ -408,7 +433,7 @@ export class PdfService {
 
     const div_7 = async (x, y) => {
       doc.addPage(paper)
-      const guestData = [...guest].map((e) => {
+      const guestData = [...guests].map((e) => {
           return {
             name: e.name,
             age: e.age.toString(),
@@ -428,7 +453,11 @@ export class PdfService {
           { label: 'Nationality', property: 'nationality', width: 54 },
         ],
 
-        datas: guestData
+        datas: [{name: leadGuest, age, nationality: nationality}, ...guestData] as {
+          name: string;
+          age: string;
+          nationality: string;
+      }[]
       };
 
 

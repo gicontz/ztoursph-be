@@ -1,16 +1,20 @@
 export type TPDFItenerary = {
-    guest: {
+    firstname: string,
+    middleInitial?: string,
+    lastname: string,
+    age: number,
+    nationality: string
+    email: string | undefined
+    mobileNumber1: number,
+    mobileNumber2: number,
+    tour_date: string; 
+    guests?: {
         name: string;
-        lead_guest: boolean;
         age: number;
         nationality: string;
-    }[];
-    email: string | undefined
-    contact: number
-    tour_date: string;
-    eta: string
-    etd: string
-    booked_tours: {
+    }[]
+    booked_tours?: {
+        pax: number;
         date: string;
         time: string
         description: string;
