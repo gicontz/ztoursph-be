@@ -123,14 +123,14 @@ export class PdfService {
 
     const div_3 = (x, y) => {
       configureTextContent({
-        text: 'Guest Information',
+        text: 'Package and Tours',
         font: 'Helvetica-Bold',
         size: fontSize.medium + 2,
         position: { x: 160 / 2 - x, y: MARGIN_Y + y },
         options: { width: 55, align: 'center' },
       });
     };
-
+ 
     const div_4 = (x, y) => {
       // Lead Guest Value
       configureTextContent({
@@ -390,6 +390,8 @@ export class PdfService {
         position: { x: MARGIN_X + x, y: ALIGN_END + y + 6 },
         options: { width: 70, align: 'left' },
       });
+      
+      doc.image('src/pdf/assets/signiture.png', JUSTIFY_END + x - 20, ALIGN_END + y - 3, {width: 30, scale: 0.25})
 
       configureTextContent({
         text: 'Prepared by :',
@@ -401,6 +403,8 @@ export class PdfService {
         },
         options: { width: 70, align: 'left' },
       });
+
+     
 
       configureTextContent({
         text: 'Jeo Invento',
@@ -483,8 +487,8 @@ export class PdfService {
 
     addDivContent(div_1, 0, 0);
     addDivContent(div_2, -40, 0);
-    addDivContent(div_3, 5, 20);
-    addDivContent(div_4, 0, 30);
+    addDivContent(div_3, 5, 63);
+    addDivContent(div_4, 0, 20);
     addDivContent(div_5, 0, 75);
     addDivContent(div_6, 0, 30);
     addDivContent(div_7, 0, 0);
