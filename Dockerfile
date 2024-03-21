@@ -4,8 +4,7 @@ FROM node:18
 # Create app directory
 WORKDIR /ztoursph-be
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY package*.json ./ 
+COPY package.json ./ 
 COPY yarn.lock ./
 
 # Install app dependencies
@@ -18,7 +17,7 @@ COPY . .
 COPY .env ./
 
 # Creates a "dist" folder with the production build
-RUN npm run build
+RUN yarn build
 
 # Expose the port on which the app will run
 EXPOSE 3001
