@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { UsersService } from 'src/users/users.service';
@@ -9,6 +9,7 @@ import { MayaService } from 'src/third-party/maya-sdk/maya.service';
 import { CheckoutService } from './checkout.service';
 import { PAYMENT_DTO_EXAMPLE, TPaymentDTO } from './checkout.dto';
 import { TPaymentResponse, TPaymentStatus } from 'src/third-party/maya-sdk/maya.dto';
+import { Response } from 'express';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -104,7 +105,7 @@ export class CheckoutController {
 
     @Post('/verify')
     @ApiBody({ required: true, description: "A webhook for payment process of maya, consumes PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_EXPIRED, PAYMENT_CANCELLED, and AUTHORIZED" })
-    async verifyPayment(@Body() paymentResponse: TPaymentResponse): Promise<TResponseData> {
+    async verifyPayment(@Body() paymentResponse: TPaymentResponse, @Res() response: Response): Promise<TResponseData> {
         const status = this.mayaService.verifyPayment(paymentResponse);
         let bookingId = '';
 
@@ -112,6 +113,7 @@ export class CheckoutController {
             bookingId = (await this.checkoutService.findOne(paymentResponse.requestReferenceNumber)).bookingId;
         } catch (e) {
             console.warn(new Date(), e);
+            response.status(HttpStatus.OK);
             return {
                 status: HttpStatus.OK,
                 message: 'Booking Info not found. Check your reference number.'
@@ -196,6 +198,7 @@ export class CheckoutController {
                     }
                 } catch (e) {
                     console.warn(new Date(), e);
+                    response.status(HttpStatus.OK);
                     return {
                         status: HttpStatus.OK,
                         message: 'Payment has not been verified'
