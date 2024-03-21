@@ -2,13 +2,13 @@
 FROM node:18
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /ztoursph-be
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm install
+RUN yarn --frozen-lockfile
 
 # Bundle app source
 COPY . .
@@ -23,4 +23,4 @@ RUN npm run build
 EXPOSE 3001
 
 # Start the server using the production build
-CMD ["npm", "run", "start:prod"]
+CMD ["yarn", "start:prod"]
