@@ -105,7 +105,7 @@ export class CheckoutController {
 
     @Post('/verify')
     @ApiBody({ required: true, description: "A webhook for payment process of maya, consumes PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_EXPIRED, PAYMENT_CANCELLED, and AUTHORIZED" })
-    async verifyPayment(@Body() paymentResponse: TPaymentResponse, @Res() response: Response): Promise<TResponseData> {
+    async verifyPayment(@Body() paymentResponse: TPaymentResponse, @Res() response: Response): Promise<Response<TResponseData>> {
         const status = this.mayaService.verifyPayment(paymentResponse);
         let bookingId = '';
 
@@ -113,11 +113,10 @@ export class CheckoutController {
             bookingId = (await this.checkoutService.findOne(paymentResponse.requestReferenceNumber)).bookingId;
         } catch (e) {
             console.warn(new Date(), e);
-            response.status(HttpStatus.OK);
-            return {
+            return response.status(HttpStatus.OK).send({
                 status: HttpStatus.OK,
                 message: 'Booking Info not found. Check your reference number.'
-            }
+            });
         }
 
         switch(status){
@@ -134,14 +133,14 @@ export class CheckoutController {
                     // Update Booking Payment Status
                     await this.bookingService.update({ id: bookingId, paymentStatus: PaymentStatus.PAID, approval_code: paymentResponse.approvalCode});
                     delete paymentInfo.success_response;
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment has been verified',
                         data: paymentInfo
-                    }
+                    });
                 } catch(e) {
                     console.warn(new Date(), e);
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment stuck while verifying. Please contact support.',
                         data: {
@@ -149,7 +148,7 @@ export class CheckoutController {
                             receiptNumber: paymentResponse.receiptNumber,
                             errorMessage: e.detail,
                         }
-                    }
+                    });
                 }
             } 
             case TPaymentStatus.AUTHORIZED: {
@@ -162,21 +161,21 @@ export class CheckoutController {
                         success_response: JSON.stringify(paymentResponse)
                     });
                     delete paymentInfo.success_response;
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment process is still pending. Please wait for the payment to be verified.',
                         data: paymentInfo
-                    }
+                    });
                 } catch(e) {
                     console.warn(new Date(), e);
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment stuck while verifying. Please contact support.',
                         data: {
                             status: paymentResponse.status,
                             receiptNumber: paymentResponse.receiptNumber,
                         }
-                    }
+                    });
                 }
             }
             default: {
@@ -191,18 +190,17 @@ export class CheckoutController {
                     });
 
                     delete paymentInfo.failed_response;
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment failed, cancelled or cannot be verified.',
                         data: paymentInfo
-                    }
+                    });
                 } catch (e) {
                     console.warn(new Date(), e);
-                    response.status(HttpStatus.OK);
-                    return {
+                    return response.status(HttpStatus.OK).send({
                         status: HttpStatus.OK,
                         message: 'Payment has not been verified'
-                    }
+                    });
                 }
             }
         }
