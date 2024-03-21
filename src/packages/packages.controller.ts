@@ -4,7 +4,7 @@ import { TResponseData } from 'src/http.types';
 import { PackagesService } from './packages.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import config from '@config/config';
+import config from '../config/config';
 import { S3BucketService } from 'src/middlewares/s3.service';
 
 @ApiTags('Packages')

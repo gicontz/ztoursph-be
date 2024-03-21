@@ -1,13 +1,18 @@
+org: gimcontz
+app: ztoursph-service
 service: ztoursph-service
 
 plugins:
- - 'serverless-plugin-typescript'
+ - serverless-plugin-typescript
  - serverless-plugin-optimize
  - serverless-offline
 
+package:
+  individually: true
+
 provider:
  name: aws
- runtime: nodejs14.x
+ runtime: nodejs18.x
 
 functions:
  main: # The name of the lambda function

@@ -5,7 +5,7 @@
  *********************************************************
  * 12/09/2022  * Gim Contillo    * Initial Change
 *********************************************************/
-import config from '@config/config';
+import config from '../../config/config';
 import { TResponseData } from 'src/http.types';
 import axios from 'axios';
 import { TPaymentResponse } from './maya.dto';

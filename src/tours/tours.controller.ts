@@ -4,7 +4,7 @@ import { TResponseData } from 'src/http.types';
 import { ToursService } from './tours.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import config from '@config/config';
+import config from '../config/config';
 import { S3BucketService } from 'src/middlewares/s3.service';
 
 @ApiTags('Tours')
