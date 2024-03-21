@@ -4,7 +4,8 @@ FROM node:18
 # Create app directory
 WORKDIR /ztoursph-be
 
-COPY package.json ./ 
+COPY package.json ./
+
 COPY yarn.lock ./
 
 # Install app dependencies
