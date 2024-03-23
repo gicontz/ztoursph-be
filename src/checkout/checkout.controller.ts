@@ -110,7 +110,12 @@ export class CheckoutController {
         let bookingId = '';
 
         try {
-            bookingId = (await this.checkoutService.findOne(paymentResponse.requestReferenceNumber)).bookingId;
+            bookingId = (await this.checkoutService.findOne(paymentResponse.requestReferenceNumber))?.bookingId;
+            if (!bookingId) 
+                return response.status(HttpStatus.OK).send({
+                    status: HttpStatus.OK,
+                    message: 'Booking Info not found. Check your reference number.'
+                });
         } catch (e) {
             console.warn(new Date(), e);
             return response.status(HttpStatus.OK).send({

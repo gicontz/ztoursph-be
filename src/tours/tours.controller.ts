@@ -124,9 +124,7 @@ export class ToursController {
         ids: { value: { ids: [] }, description: 'Array of trip ids from tours and packages' }
     }})
     async getTrips(@Body() data: { ids: Array<string | number> }, @Query('showThumbnail') showThumbnail): Promise<TResponseData> {
-        const cacheKey = `trips-${data.ids.join('-')}-${showThumbnail}`;
-        const dataFromCache = await this.cacheManager.get(cacheKey);
-        if (data.ids.length === 0) return {
+        if (!data.ids || data.ids.length === 0) return {
             status: HttpStatus.OK,
             message: 'Tour Retrieved Successfully.',
             data: {
@@ -134,6 +132,10 @@ export class ToursController {
                 totalRecords: 0,
             },
         };
+        
+        const ids = data.ids.length > 0 ? data.ids.join('-') : undefined;
+        const cacheKey = `trips${ids ? `-${ids}` : ''}-${showThumbnail}`;
+        const dataFromCache = await this.cacheManager.get(cacheKey);
         
         if (dataFromCache) {
             return {
