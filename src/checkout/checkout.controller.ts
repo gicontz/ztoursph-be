@@ -7,9 +7,12 @@ import { BookingsService } from 'src/bookings/bookings.service';
 import { PaymentStatus } from 'src/bookings/bookings.model';
 import { MayaService } from 'src/third-party/maya-sdk/maya.service';
 import { CheckoutService } from './checkout.service';
-import { PAYMENT_DTO_EXAMPLE, TPaymentDTO } from './checkout.dto';
+import { PAYMENT_DTO_EXAMPLE, TPaymentDTO, TPreCheckout } from './checkout.dto';
 import { TPaymentResponse, TPaymentStatus } from 'src/third-party/maya-sdk/maya.dto';
 import { Response } from 'express';
+import { ToursService } from 'src/tours/tours.service';
+import { PackagesService } from 'src/packages/packages.service';
+import config from '../config/config';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -18,7 +21,11 @@ export class CheckoutController {
         private readonly userService: UsersService,
         private readonly mayaService: MayaService,
         private readonly bookingService: BookingsService,
+        private readonly toursService: ToursService,
+        private readonly packageService: PackagesService,
         private readonly checkoutService: CheckoutService) {}
+    
+    private cnfg = config();
 
     @Post('/trips')
     @ApiBody({ required: true })
@@ -207,6 +214,65 @@ export class CheckoutController {
                         message: 'Payment has not been verified'
                     });
                 }
+            }
+        }
+    }
+
+    
+    @Post('/calculate/trips')
+    @ApiBody({ required: true, type: TPreCheckout, examples: {
+        example1: {
+            summary: 'Pre Checkout Data Example',
+            value: {
+                booking: [
+                    { id: '1', pax: 1 },
+                    { id: '2', pax: 2 },
+                    { id: '3', pax: 3 },
+                ]
+            }
+        }
+    
+    } })
+    async calculateTrips(@Body() data: TPreCheckout): Promise<TResponseData> {
+        if (!data.booking) {
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: 'Cannot Calculate Trips!',
+            }
+        }
+        const { booking } = data;
+        const ids = booking.map((b) => b.id);
+
+        const tours = await this.toursService.findByIds(ids as number[]);
+        const packages = await this.packageService.findByIds(ids as string[]);
+        const trips: Array<{ id: string | number, price: number, pax: number }> = [
+            ...tours.map(({ id, price }) =>({ id, price, pax: booking.find((b) => b.id === id).pax })), 
+            ...packages.map(({ id, price }) => ({ id, price, pax: booking.find((b) => b.id === id).pax }))
+        ];
+        
+        const subTotals = trips.map((t) => {
+            const { id, price, pax } = t;
+            return {
+                id,
+                pax,
+                subTotal: parseFloat(price as unknown as string) * pax
+            }
+        });
+
+        const totalAmt = subTotals.reduce((acc, curr) => acc + curr.subTotal, 0);
+
+        const processingFee = totalAmt * (this.cnfg.payments.processingFeeRates/100) + this.cnfg.payments.processingFee;
+
+        const totalAmtTbp = totalAmt + processingFee;
+
+        return {
+            status: HttpStatus.OK,
+            message: 'Trips Calculated Successfully!',
+            data: {
+                subTotals,
+                totalAmt,
+                processingFee,
+                totalAmtTbp
             }
         }
     }

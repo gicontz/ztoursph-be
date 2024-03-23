@@ -9,15 +9,21 @@ import { BookingsService } from 'src/bookings/bookings.service';
 import { BookingModel } from 'src/bookings/bookings.model';
 import { MayaService } from 'src/third-party/maya-sdk/maya.service';
 import { CheckoutModel } from './checkout.model';
+import { ToursService } from 'src/tours/tours.service';
+import { PackagesService } from 'src/packages/packages.service';
+import { TourModel } from 'src/tours/tours.model';
+import { PackageModel } from 'src/packages/packages.model';
 
 @Module({
   imports: [
     CacheModule.register(), 
     TypeOrmModule.forFeature([UserModel]), 
     TypeOrmModule.forFeature([BookingModel]),
-    TypeOrmModule.forFeature([CheckoutModel])
+    TypeOrmModule.forFeature([CheckoutModel]),
+    TypeOrmModule.forFeature([TourModel]),
+    TypeOrmModule.forFeature([PackageModel])
   ],
-  providers: [CheckoutService, MayaService, UsersService, BookingsService],
+  providers: [CheckoutService, MayaService, UsersService, BookingsService, ToursService, PackagesService],
   exports: [CheckoutService, UsersService, BookingsService],
   controllers: [CheckoutController]
 })

@@ -12,6 +12,19 @@ export class TPaymentDTO {
     readonly updatedAt?: Date;
 };
 
+export type TCategory = 'tours' | 'packages';
+
+export type TBookedTrip = {
+    readonly id: string | number;
+    readonly category?: TCategory;
+    readonly pax: number;
+    readonly date?: Date;
+}
+
+export class TPreCheckout {
+    readonly booking: Array<TBookedTrip>;
+}
+
 export const PAYMENT_DTO_EXAMPLE = {
     paymentData: {
         userId: '123',

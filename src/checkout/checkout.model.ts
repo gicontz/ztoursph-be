@@ -10,6 +10,12 @@ export type TCheckout = {
     totalAmt: number;
 };
 
+export type TPaymentFees = {
+    totalAmt: number;
+    processingFee: number;
+    description: string;
+}
+
 export enum TCheckoutPaymentStatus {
     PENDING = 'PENDING',
     FAILED = 'FAILED',

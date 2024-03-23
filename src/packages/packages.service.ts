@@ -48,6 +48,8 @@ export class PackagesService {
     }
     
     findByIds(ids: string[]): Promise<PackageModel[]> {
-        return this.packageRepository.createQueryBuilder().where('id IN (:...ids)', { ids }).getMany();
+        const uuIds = ids.filter(id => id.length === 36);
+        if (uuIds.length === 0) return Promise.resolve([]);
+        return this.packageRepository.createQueryBuilder().where('id IN (:...ids)', { ids: uuIds }).getMany();
     }
 }
