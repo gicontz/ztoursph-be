@@ -1,17 +1,22 @@
-import { Controller, Get, HttpStatus, Inject, Query } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Inject, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { ToursService } from './tours.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import config from '../config/config';
 import { S3BucketService } from 'src/middlewares/s3.service';
+import { PackagesService } from 'src/packages/packages.service';
 
 @ApiTags('Tours')
 @Controller('tours')
 export class ToursController {
     private cnfg = config();
-    constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache, private readonly toursService: ToursService, private readonly s3Service: S3BucketService) {}
+    constructor(
+        @Inject(CACHE_MANAGER) private cacheManager: Cache, 
+        private readonly toursService: ToursService,
+        private readonly packageService: PackagesService, 
+        private readonly s3Service: S3BucketService) {}
 
     @Get('/')
     @ApiQuery({ name: 'hasGallery', type: 'Boolean', required: false })
@@ -109,6 +114,60 @@ export class ToursController {
             message: 'Tour Retrieved Successfully.',
             data: {
                 ...imaged_tour,
+            },
+        };
+    };
+
+    @Post('/trips')
+    @ApiQuery({ name: 'showThumbnail', type: 'Boolean', required: false })
+    @ApiBody({ type: 'Object', required: false, examples: {
+        ids: { value: { ids: [] }, description: 'Array of trip ids from tours and packages' }
+    }})
+    async getTrips(@Body() data: { ids: Array<string | number> }, @Query('showThumbnail') showThumbnail): Promise<TResponseData> {
+        const cacheKey = `trips-${data.ids.join('-')}-${showThumbnail}`;
+        const dataFromCache = await this.cacheManager.get(cacheKey);
+        if (data.ids.length === 0) return {
+            status: HttpStatus.OK,
+            message: 'Tour Retrieved Successfully.',
+            data: {
+                records: [],
+                totalRecords: 0,
+            },
+        };
+        
+        if (dataFromCache) {
+            return {
+                status: HttpStatus.OK,
+                message: 'Tour Retrieved Successfully.',
+                data: {
+                    ...dataFromCache as any,
+                },
+            };
+        }
+        const tours = await this.toursService.findByIds(data.ids as number[]);
+        const packages = await this.packageService.findByIds(data.ids as string[]);
+        const trips = [...tours.map((t) => ({ ...t, title: t.tour_title})), ...packages.map((p) => ({ ...p, title: p.package_title}))];
+        
+        const imaged_trips = await Promise.all(trips.map(async (data) => {
+            const { id, thumbnail, title, package_details, price, discount } = data;
+                const tour = {
+                    id,
+                    thumbnail: showThumbnail ? await this.s3Service.getImage(thumbnail) : '',
+                    title,
+                    package_details,
+                    price,
+                    discount,
+                };
+                return tour;
+            }
+        ));
+        await this.cacheManager.set(cacheKey, imaged_trips, this.cnfg.cache.ttl);
+        return {
+            status: HttpStatus.OK,
+            message: 'Trips Retrieved Successfully.',
+            data: {
+                records: imaged_trips,
+                totalRecords: imaged_trips.length,
             },
         };
     };

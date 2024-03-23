@@ -45,5 +45,9 @@ export class ToursService {
     
     findOne(slug: string): Promise<TourModel | null> {
         return this.tourRepository.findOneBy({ tour_slug: slug });
-      }
+    }
+
+    findByIds(ids: number[]): Promise<TourModel[]> {
+        return this.tourRepository.createQueryBuilder().where('id IN (:...ids)', { ids }).getMany();
+    }
 }

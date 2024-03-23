@@ -46,4 +46,8 @@ export class PackagesService {
     findOne(slug: string): Promise<PackageModel | null> {
         return this.packageRepository.findOneBy({ package_slug: slug });
     }
+    
+    findByIds(ids: string[]): Promise<PackageModel[]> {
+        return this.packageRepository.createQueryBuilder().where('id IN (:...ids)', { ids }).getMany();
+    }
 }

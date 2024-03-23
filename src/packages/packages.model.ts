@@ -4,7 +4,7 @@ import { Column, Entity, Generated, PrimaryGeneratedColumn } from "typeorm";
 @Entity({ name: 'package_content' })
 export class PackageModel {
     @PrimaryGeneratedColumn('uuid')
-    id: number;
+    id: string;
     @Generated('increment')
     package_number: number;
     @Column({ type: 'text', nullable: false, unique: true })
