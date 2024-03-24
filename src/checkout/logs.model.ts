@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export type TPaymentLog = {
-    referenceId?: string;
+    reference_id?: string;
     logs: string;
 }
 
@@ -10,7 +10,7 @@ export class PaymentLogsModel {
     @PrimaryGeneratedColumn('increment')
     id: number;
     @Column({ type: 'text', nullable: true })
-    referenceId: string;
+    reference_id: string;
     @Column({ type: 'text', nullable: true })
     logs: string;
     @Column({ type: 'date', nullable: false, default: new Date() })

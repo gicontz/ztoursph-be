@@ -151,7 +151,7 @@ export class CheckoutController {
 
         // Log Payment Response
         await this.checkoutService.log({
-            referenceId: paymentResponse.requestReferenceNumber,
+            reference_id: paymentResponse.requestReferenceNumber,
             logs: JSON.stringify(paymentResponse),
         });
 
