@@ -13,6 +13,7 @@ import { Response } from 'express';
 import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
 import config from '../config/config';
+import { format } from 'date-fns';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -28,8 +29,23 @@ export class CheckoutController {
     private cnfg = config();
 
     @Post('/trips')
-    @ApiBody({ required: true })
-    async checkoutTrips(@Body('data') data: TCheckout): Promise<TResponseData> {
+    @ApiBody({ required: true, examples: {
+        example1: {
+            summary: 'Checkout Data Example',
+            value: {
+                userEmail: 'test@test.com',
+                first_name: 'John',
+                middle_init: 'D',
+                last_name: 'Doe',
+                packages: [{
+                    id: 1,
+                    pax: 1,
+                    date: '2022-12-12',
+                }],
+            }
+        }
+    } })
+    async checkoutTrips(@Body() data: TCheckout): Promise<TResponseData> {
         // Check if user exists
         let userInfo = await this.userService.findOne({ id: data.userId, email: data.userEmail });
         if (!userInfo) {
@@ -38,14 +54,18 @@ export class CheckoutController {
                 email: data.userEmail,
                 first_name: data.first_name,
                 middle_init: data.middle_init,
-                last_name: data.last_name
+                last_name: data.last_name,
+                mobile_number1: data.mobile_number1,
+                mobile_number2: data.mobile_number2,
+                birthday: data.birthday,
+                sex: data.sex
             };
             userInfo = await this.userService.create(newUserData);
         }
         // Upon user verification, create booking
         const { packages, totalAmt } = data;
         const newBooking = await this.bookingService.create({
-            packages,
+            packages: packages as any,
             total_amt: totalAmt,
             user_id: userInfo.id,
             paymentStatus: PaymentStatus.UNPAID,
@@ -88,11 +108,24 @@ export class CheckoutController {
         try {
             const paymentInfo = await this.checkoutService.create(paymentData);
             const referenceId = paymentInfo.referenceId;
+            const userInfo = await this.userService.findOne({ id: paymentData.userId });
             if (paymentData) {
                 const data = await this.mayaService.checkout({
                     totalAmount: {
                         value: paymentData.amount,
                         currency: 'PHP',
+                    },
+                    buyer: {
+                        firstName: userInfo.first_name,
+                        lastName: userInfo.last_name,
+                        middleName: userInfo.middle_init,
+                        birthday: format(userInfo.birthday, "yyyy-MM-dd"),
+                        customerSince: format(userInfo.created_date, "yyyy-MM-dd"),
+                        sex: userInfo.sex,
+                        contact: {
+                            phone: userInfo.mobile_number1,
+                            email: userInfo.email,
+                        }
                     },
                     requestReferenceNumber: referenceId,
                 });
@@ -105,7 +138,7 @@ export class CheckoutController {
         } catch (e) {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Error in processing payment: CODE - ${e.code}`
+                message: `Error in processing payment: CODE - ${e}`
             }
         }
     }
@@ -115,6 +148,12 @@ export class CheckoutController {
     async verifyPayment(@Body() paymentResponse: TPaymentResponse, @Res() response: Response): Promise<Response<TResponseData>> {
         const status = this.mayaService.verifyPayment(paymentResponse);
         let bookingId = '';
+
+        // Log Payment Response
+        await this.checkoutService.log({
+            referenceId: paymentResponse.requestReferenceNumber,
+            logs: JSON.stringify(paymentResponse),
+        });
 
         try {
             bookingId = (await this.checkoutService.findOne(paymentResponse.requestReferenceNumber))?.bookingId;

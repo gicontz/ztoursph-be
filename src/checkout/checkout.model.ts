@@ -1,3 +1,4 @@
+import { UserSex } from "src/users/users.model";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export type TCheckout = {
@@ -5,8 +6,12 @@ export type TCheckout = {
     userEmail: string;
     first_name: string;
     last_name: string;
+    mobile_number1: string;
+    mobile_number2: string;
+    birthday: Date;
+    sex: UserSex;
     middle_init: string;
-    packages: string[];
+    packages: string;
     totalAmt: number;
 };
 

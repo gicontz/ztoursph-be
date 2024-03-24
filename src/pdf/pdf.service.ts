@@ -29,7 +29,7 @@ export class PdfService {
     const minors = guests.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(new Set([nationality, ...guests.map(e => e.nationality)]));
 
-    const paper = { size: 'A7', margin: 30 }
+    const paper = { size: 'letter', margin: 30 }
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
     
     const FONT_HELVETICA = 'Helvetica';
@@ -40,7 +40,7 @@ export class PdfService {
     const MARGIN_Y = 20;
     const JUSTIFY_END = 160 + MARGIN_X;
     const ALIGN_END = 215 + MARGIN_Y;
-    const FONT_SIZE = { small: 2, default: 3, medium: 4, large: 10 };
+    const FONT_SIZE = { small: 6, default: 9, medium: 10, large: 24 };
     
     interface ConfigureTextContentProps {
       text: any;

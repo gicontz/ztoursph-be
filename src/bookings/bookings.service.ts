@@ -16,7 +16,7 @@ export class BookingsService {
 
     create(bookingInfo: TBooking): Promise<BookingModel> {
         const info = {...bookingInfo, packages: ''};
-        info.packages = bookingInfo.packages.join(',');
+        info.packages = JSON.stringify(bookingInfo.packages);
         return this.bookingRepository.save(info);
     }
 

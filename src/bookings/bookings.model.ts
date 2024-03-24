@@ -9,7 +9,7 @@ export enum PaymentStatus {
 export type TBooking = {
     id?: string;
     user_id: string;
-    packages?: string[];
+    packages?: { id: string | number; pax: number; date: string; category?: 'tours' | 'packages'}[];
     total_amt: number;
     paymentStatus: PaymentStatus;
     approval_code?: string;

@@ -13,6 +13,7 @@ import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
 import { TourModel } from 'src/tours/tours.model';
 import { PackageModel } from 'src/packages/packages.model';
+import { PaymentLogsModel } from './logs.model';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PackageModel } from 'src/packages/packages.model';
     TypeOrmModule.forFeature([UserModel]), 
     TypeOrmModule.forFeature([BookingModel]),
     TypeOrmModule.forFeature([CheckoutModel]),
+    TypeOrmModule.forFeature([PaymentLogsModel]),
     TypeOrmModule.forFeature([TourModel]),
     TypeOrmModule.forFeature([PackageModel])
   ],

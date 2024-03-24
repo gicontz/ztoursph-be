@@ -6,15 +6,24 @@ export enum UserRole {
     DEVELOPER = 'DEVELOPER'
 };
 
+export enum UserSex {
+    M = 'M',
+    F = 'F'
+}
+
 export type TUser = {
     id?: string;
     first_name: string;
     last_name: string;
     middle_init: string | null;
     email: string;
-    signup_date: Date;
+    mobile_number1: string;
+    mobile_number2: string;
+    birthday: Date;
+    sex: UserSex;
     role?: UserRole;
     enabled?: boolean;
+    created_date?: Date;
 }
 
 @Entity({ name: 'users' })
@@ -29,10 +38,18 @@ export class UserModel {
     last_name: string;
     @Column({ type: 'text', nullable: false, unique: true })
     email: string;
+    @Column({ type: 'text', nullable: false, unique: true })
+    mobile_number1: string;
+    @Column({ type: 'text', nullable: false, unique: true })
+    mobile_number2: string;
+    @Column({ enum: UserSex, nullable: false, unique: true })
+    sex: UserSex;
     @Column({ type: 'date', nullable: false })
-    signup_date: Date;
+    birthday: Date;
     @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER, nullable: false })
     role: UserRole;
     @Column({ type: 'boolean', default: true, nullable: false })
     enabled: boolean;
+    @Column({ type: 'date', default: true, nullable: false })
+    created_date: Date;
 }

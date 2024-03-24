@@ -15,6 +15,18 @@ export type TMayaPayment = {
         value: number;
         currency: string;
     },
+    buyer: {
+        firstName: string;
+        lastName: string;
+        middleName: string;
+        birthday: string,
+        customerSince: string;
+        sex: string;
+        contact: {
+            phone: string;
+            email: string;
+        }
+    },
     requestReferenceNumber: string;
 }
 
