@@ -234,7 +234,7 @@ export class CheckoutController {
     
     } })
     async calculateTrips(@Body() data: TPreCheckout): Promise<TResponseData> {
-        if (!data.booking) {
+        if (!data.booking || data.booking.length === 0) {
             return {
                 status: HttpStatus.BAD_REQUEST,
                 message: 'Cannot Calculate Trips!',
