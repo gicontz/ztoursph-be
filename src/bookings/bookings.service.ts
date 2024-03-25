@@ -5,22 +5,22 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class BookingsService {
-    constructor(
-        @InjectRepository(BookingModel)
-        private bookingRepository: Repository<BookingModel>,
-      ) {}
-    
-    findOne(id: string): Promise<BookingModel | null> {
-        return this.bookingRepository.findOneBy({ id });
-    }
+  constructor(
+    @InjectRepository(BookingModel)
+    private bookingRepository: Repository<BookingModel>,
+  ) {}
 
-    create(bookingInfo: TBooking): Promise<BookingModel> {
-        const info = {...bookingInfo, packages: ''};
-        info.packages = JSON.stringify(bookingInfo.packages);
-        return this.bookingRepository.save(info);
-    }
+  findOne(id: string): Promise<BookingModel | null> {
+    return this.bookingRepository.findOneBy({ id });
+  }
 
-    update(bookingInfo: Partial<TBooking>): Promise<BookingModel> {
-        return this.bookingRepository.save(bookingInfo as any);
-    }
+  create(bookingInfo: TBooking): Promise<BookingModel> {
+    const info = { ...bookingInfo, packages: '' };
+    info.packages = JSON.stringify(bookingInfo.packages);
+    return this.bookingRepository.save(info);
+  }
+
+  update(bookingInfo: Partial<TBooking>): Promise<BookingModel> {
+    return this.bookingRepository.save(bookingInfo as any);
+  }
 }

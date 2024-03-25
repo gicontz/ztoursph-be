@@ -5,51 +5,60 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class PackagesService {
-    constructor(
-        @InjectRepository(PackageModel)
-        private packageRepository: Repository<PackageModel>,
-      ) {}
-    
-    async find(options?: { searchText?: string, pageNumber?: number, pageSize?: number }): Promise<{ records: PackageModel[], totalRecords: number }> {
-        let result = [];
-        let totalRecords = 0;
-        const { searchText, pageNumber, pageSize } = options;
-        
-        if (pageNumber && pageSize) {
-          const [data, total ] = await this.packageRepository
-            .createQueryBuilder()
-            .orderBy('package_slug', 'ASC')
-            .skip((pageNumber - 1) * pageSize)
-            .take(pageSize)
-            .getManyAndCount();
-          result = [...data];
-          totalRecords = total;
-        } else {
-          result = (await this.packageRepository.find()) as PackageModel[];
-        }
+  constructor(
+    @InjectRepository(PackageModel)
+    private packageRepository: Repository<PackageModel>,
+  ) {}
 
-        if (searchText) {
-          const filteredResult = result.filter((user) => {
-            return JSON.stringify(user).toLowerCase().includes(searchText.toLowerCase());
-          });
-          return {
-            records: [...filteredResult],
-            totalRecords
-          };
-        }
-        return {
-          records: [...result],
-          totalRecords
-        };;
+  async find(options?: {
+    searchText?: string;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Promise<{ records: PackageModel[]; totalRecords: number }> {
+    let result = [];
+    let totalRecords = 0;
+    const { searchText, pageNumber, pageSize } = options;
+
+    if (pageNumber && pageSize) {
+      const [data, total] = await this.packageRepository
+        .createQueryBuilder()
+        .orderBy('package_slug', 'ASC')
+        .skip((pageNumber - 1) * pageSize)
+        .take(pageSize)
+        .getManyAndCount();
+      result = [...data];
+      totalRecords = total;
+    } else {
+      result = (await this.packageRepository.find()) as PackageModel[];
     }
-    
-    findOne(slug: string): Promise<PackageModel | null> {
-        return this.packageRepository.findOneBy({ package_slug: slug });
+
+    if (searchText) {
+      const filteredResult = result.filter((user) => {
+        return JSON.stringify(user)
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+      });
+      return {
+        records: [...filteredResult],
+        totalRecords,
+      };
     }
-    
-    findByIds(ids: string[]): Promise<PackageModel[]> {
-        const uuIds = ids.filter(id => id.length === 36);
-        if (uuIds.length === 0) return Promise.resolve([]);
-        return this.packageRepository.createQueryBuilder().where('id IN (:...ids)', { ids: uuIds }).getMany();
-    }
+    return {
+      records: [...result],
+      totalRecords,
+    };
+  }
+
+  findOne(slug: string): Promise<PackageModel | null> {
+    return this.packageRepository.findOneBy({ package_slug: slug });
+  }
+
+  findByIds(ids: string[]): Promise<PackageModel[]> {
+    const uuIds = ids.filter((id) => id.length === 36);
+    if (uuIds.length === 0) return Promise.resolve([]);
+    return this.packageRepository
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids: uuIds })
+      .getMany();
+  }
 }

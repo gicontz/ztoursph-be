@@ -23,25 +23,39 @@ export class PdfService {
   }
 
   private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
-    const {lastname, firstname, middleInitial, age, guests, email, mobileNumber1, nationality, mobileNumber2, tour_date, booked_tours} = content
+    const {
+      lastname,
+      firstname,
+      middleInitial,
+      age,
+      guests,
+      email,
+      mobileNumber1,
+      nationality,
+      mobileNumber2,
+      tour_date,
+      booked_tours,
+    } = content;
     const leadGuest = [lastname, firstname, middleInitial].join(' ');
     const adults = guests.filter((guest) => guest.age >= 18).length;
     const minors = guests.filter((guest) => guest.age < 18).length;
-    const nationalityUnique = Array.from(new Set([nationality, ...guests.map(e => e.nationality)]));
+    const nationalityUnique = Array.from(
+      new Set([nationality, ...guests.map((e) => e.nationality)]),
+    );
 
-    const paper = { size: 'letter', margin: 30 }
+    const paper = { size: 'letter', margin: 30 };
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
-    
+
     const FONT_HELVETICA = 'Helvetica';
     const FONT_COURIER = 'Courier';
     const FONT_HELVETICA_BOLD = 'Helvetica-Bold';
-    
+
     const MARGIN_X = 15;
     const MARGIN_Y = 20;
     const JUSTIFY_END = 160 + MARGIN_X;
     const ALIGN_END = 215 + MARGIN_Y;
     const FONT_SIZE = { small: 6, default: 9, medium: 10, large: 24 };
-    
+
     interface ConfigureTextContentProps {
       text: any;
       font?: string;
@@ -49,7 +63,7 @@ export class PdfService {
       position?: { x?: number; y?: number };
       options?: PDFKit.Mixins.TextOptions;
     }
-    
+
     const doc = new PDFKit(paper);
 
     const configureTextContent = ({
@@ -170,9 +184,12 @@ export class PdfService {
 
       // Nationality Value
       configureTextContent({
-        text: typeof nationalityUnique === 'string' ? nationalityUnique : nationalityUnique.join(', '),
+        text:
+          typeof nationalityUnique === 'string'
+            ? nationalityUnique
+            : nationalityUnique.join(', '),
         font: FONT_HELVETICA,
-        size: fontSize.medium, 
+        size: fontSize.medium,
         position: { x: MARGIN_X + x + 23, y: MARGIN_Y + y + 20 },
         options: { width: 80 },
       });
@@ -331,7 +348,7 @@ export class PdfService {
           },
           { label: 'Description', property: 'description', width: 60 },
           { label: 'Time', property: 'time', width: 40 },
-          { label: 'Pax', property: 'pax', width: 20},
+          { label: 'Pax', property: 'pax', width: 20 },
           {
             label: 'Sub-Total',
             property: 'subtotal',
@@ -355,21 +372,26 @@ export class PdfService {
             date: '',
             description: '',
             time: '',
-            pax:'GrandTotal',
-            subtotal: booked_tours.reduce((acc, cur) => acc + Number(cur.subtotal), 0).toString(),
+            pax: 'GrandTotal',
+            subtotal: booked_tours
+              .reduce((acc, cur) => acc + Number(cur.subtotal), 0)
+              .toString(),
           },
         ],
       };
       // the magic (async/await)
 
-      await doc.table({ ...table }, {
-        x: MARGIN_X + x,
-        y: MARGIN_Y + y,
-        prepareHeader: () => doc.font('Helvetica').fontSize(fontSize.medium),
-        prepareRow() {
-          return doc.font('Helvetica').fontSize(fontSize.default);
+      await doc.table(
+        { ...table },
+        {
+          x: MARGIN_X + x,
+          y: MARGIN_Y + y,
+          prepareHeader: () => doc.font('Helvetica').fontSize(fontSize.medium),
+          prepareRow() {
+            return doc.font('Helvetica').fontSize(fontSize.default);
+          },
         },
-      });
+      );
     };
 
     const div_6 = (x, y) => {
@@ -432,14 +454,14 @@ export class PdfService {
      */
 
     const div_7 = async (x, y) => {
-      doc.addPage(paper)
+      doc.addPage(paper);
       const guestData = [...guests].map((e) => {
-          return {
-            name: e.name,
-            age: e.age.toString(),
-            nationality: e.nationality
-          }
-        })
+        return {
+          name: e.name,
+          age: e.age.toString(),
+          nationality: e.nationality,
+        };
+      });
 
       const table = {
         addPage: true,
@@ -453,13 +475,15 @@ export class PdfService {
           { label: 'Nationality', property: 'nationality', width: 54 },
         ],
 
-        datas: [{name: leadGuest, age, nationality: nationality}, ...guestData] as {
+        datas: [
+          { name: leadGuest, age, nationality: nationality },
+          ...guestData,
+        ] as {
           name: string;
           age: string;
           nationality: string;
-      }[]
+        }[],
       };
-
 
       configureTextContent({
         text: 'Masterlist',
@@ -478,7 +502,7 @@ export class PdfService {
     };
 
     const addDivContent = function (func, x, y) {
-      return func(x, y);  
+      return func(x, y);
     };
 
     addDivContent(div_1, 0, 0);

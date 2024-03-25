@@ -10,10 +10,13 @@ import { PackagesService } from 'src/packages/packages.service';
 import { PackageModel } from 'src/packages/packages.model';
 
 @Module({
-    imports: [CacheModule.register(), TypeOrmModule.forFeature([TourModel]), TypeOrmModule.forFeature([PackageModel])],
-    providers: [ToursService, S3Service, S3BucketService, PackagesService],
-    exports: [ToursService],
-    controllers: [ToursController]
+  imports: [
+    CacheModule.register(),
+    TypeOrmModule.forFeature([TourModel]),
+    TypeOrmModule.forFeature([PackageModel]),
+  ],
+  providers: [ToursService, S3Service, S3BucketService, PackagesService],
+  exports: [ToursService],
+  controllers: [ToursController],
 })
-
 export class ToursModule {}
