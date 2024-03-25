@@ -14,6 +14,7 @@ export class PdfController {
     private readonly s3Service: S3Service,
     private readonly seServiceBucket: S3BucketService,
   ) {}
+
   @Post()
   @ApiBody({
     required: true,
@@ -61,12 +62,24 @@ export class PdfController {
   ) {
     const fileName = `Itinerary-${Date.now()}-${body.content.lastname}.pdf`;
     const pdf = await this.PDFService.generateItenerary(body.content, fileName);
+
     if (upload === 'true') {
-      await this.s3Service.uploadFiles([pdf]);
-      return this.seServiceBucket.getPDF(pdf.filename);
+      try {
+        await this.s3Service.uploadFiles([pdf]);
+        const uploadedPdf = await this.seServiceBucket.getPDF(fileName);
+        return res.status(201).send(uploadedPdf);
+      } catch (error) {
+        console.error('Error uploading PDF:', error);
+        return res.status(500).send({ message: 'Failed to upload PDF' });
+      }
+    } else {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${fileName}"`,
+      );
+
+      return res.status(201).send(pdf.buffer);
     }
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.status(201).send(pdf.buffer);
   }
 }
