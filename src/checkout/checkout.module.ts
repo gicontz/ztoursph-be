@@ -17,16 +17,23 @@ import { PaymentLogsModel } from './logs.model';
 
 @Module({
   imports: [
-    CacheModule.register(), 
-    TypeOrmModule.forFeature([UserModel]), 
+    CacheModule.register(),
+    TypeOrmModule.forFeature([UserModel]),
     TypeOrmModule.forFeature([BookingModel]),
     TypeOrmModule.forFeature([CheckoutModel]),
     TypeOrmModule.forFeature([PaymentLogsModel]),
     TypeOrmModule.forFeature([TourModel]),
-    TypeOrmModule.forFeature([PackageModel])
+    TypeOrmModule.forFeature([PackageModel]),
   ],
-  providers: [CheckoutService, MayaService, UsersService, BookingsService, ToursService, PackagesService],
+  providers: [
+    CheckoutService,
+    MayaService,
+    UsersService,
+    BookingsService,
+    ToursService,
+    PackagesService,
+  ],
   exports: [CheckoutService, UsersService, BookingsService],
-  controllers: [CheckoutController]
+  controllers: [CheckoutController],
 })
 export class CheckoutModule {}

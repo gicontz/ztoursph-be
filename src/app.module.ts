@@ -1,6 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ToursModule } from './tours/tours.module';
@@ -25,9 +24,7 @@ import { PdfModule } from './pdf/pdf.module';
       entities: ['dist/**/*.model.js'],
       migrationsRun: false,
       ssl: true,
-      migrations: [
-        "src/database/migrations/*.ts"
-      ],
+      migrations: ['src/database/migrations/*.ts'],
       synchronize: false,
     }),
     ToursModule,
@@ -40,5 +37,4 @@ import { PdfModule } from './pdf/pdf.module';
   controllers: [],
   providers: [AppService],
 })
-
-export class AppModule { }
+export class AppModule {}

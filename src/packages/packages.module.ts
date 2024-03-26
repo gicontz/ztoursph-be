@@ -8,10 +8,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { S3BucketService } from 'src/middlewares/s3.service';
 
 @Module({
-    imports: [CacheModule.register(), TypeOrmModule.forFeature([PackageModel])],
-    providers: [PackagesService, S3Service, S3BucketService],
-    exports: [PackagesService],
-    controllers: [PackagesController]
+  imports: [CacheModule.register(), TypeOrmModule.forFeature([PackageModel])],
+  providers: [PackagesService, S3Service, S3BucketService],
+  exports: [PackagesService],
+  controllers: [PackagesController],
 })
-
 export class PackagesModule {}
