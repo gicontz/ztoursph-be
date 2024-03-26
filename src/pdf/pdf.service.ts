@@ -31,7 +31,7 @@ export class PdfService {
       mobileNumber1,
       nationality,
       mobileNumber2,
-      tour_date,
+      booking_date,
       booked_tours,
     } = content;
 
@@ -155,7 +155,17 @@ export class PdfService {
       configureTextContent({
         text: 'Guest Information',
         font: 'Helvetica-Bold',
-        size: FONT_SIZE.medium + 2,
+        size: FONT_SIZE.medium - 3,
+        position: { x: x, y: y + paper.margin },
+        options: { width: doc.page.width, align: 'center' },
+      });
+    };
+
+    const div_8 = (x, y) => {
+      configureTextContent({
+        text: 'Package and Tours',
+        font: 'Helvetica-Bold',
+        size: FONT_SIZE.medium - 3,
         position: { x: x, y: y + paper.margin },
         options: { width: doc.page.width, align: 'center' },
       });
@@ -210,12 +220,12 @@ export class PdfService {
         options: { width: 200 },
       });
 
-      // Tour Date Value
+      // Booking Date Value
       configureTextContent({
-        text: tour_date,
+        text: booking_date,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
-        position: { x: JUSTIFY_END + x - 175 + 55, y: y },
+        position: { x: JUSTIFY_END + x - 160 + 55, y: y },
         options: { width: 80 },
       });
 
@@ -329,7 +339,7 @@ export class PdfService {
       });
 
       configureTextContent({
-        text: 'Tour Date: ',
+        text: 'Booking Date: ',
         font: FONT_HELVETICA_BOLD,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 175, y: y },
@@ -358,7 +368,7 @@ export class PdfService {
         addPage: true,
         headers: [
           {
-            label: 'Date',
+            label: 'Tour Date',
             property: 'date',
             width: 80,
           },
@@ -524,8 +534,9 @@ export class PdfService {
 
     addDivContent(div_1, 0, 0);
     addDivContent(div_2, -175, 0);
-    addDivContent(div_3, 0, 100);
-    addDivContent(div_4, 0, 175);
+    addDivContent(div_3, 0, 90);
+    addDivContent(div_4, 0, 150);
+    addDivContent(div_8, 0, 240);
     addDivContent(div_5, 0, 300);
     addDivContent(div_6, 0, -50);
     addDivContent(div_7, 0, 0);

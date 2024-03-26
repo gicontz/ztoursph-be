@@ -30,7 +30,7 @@ export class PdfController {
             email: 'test@test.com',
             mobileNumber1: 1234567890,
             mobileNumber2: 1234567890,
-            tour_date: '2022-12-12',
+            booking_date: '2022-12-12',
             guests: [
               {
                 name: 'Jane Doe',

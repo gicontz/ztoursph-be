@@ -7,7 +7,7 @@ export class TPDFItenerary {
   readonly email: string | undefined;
   readonly mobileNumber1: number;
   readonly mobileNumber2: number;
-  readonly tour_date: string;
+  readonly booking_date: string;
   readonly guests?: {
     name: string;
     age: number;
