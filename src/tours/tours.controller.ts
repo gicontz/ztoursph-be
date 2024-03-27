@@ -43,14 +43,10 @@ export class ToursController {
     }-${pageSize}-${pageNumber}`;
     const dataFromCache = await this.cacheManager.get(cacheKey);
     if (dataFromCache) {
-      const records = [...(dataFromCache as any)];
       return {
         status: HttpStatus.NOT_MODIFIED,
         message: 'Tour Retrieved Successfully.',
-        data: {
-          records,
-          totalRecords: records.length,
-        },
+        data: { ...(dataFromCache as any) },
       };
     }
     const tours = await this.toursService.find({
@@ -96,7 +92,11 @@ export class ToursController {
       }),
     );
 
-    await this.cacheManager.set(cacheKey, imaged_tours, this.cnfg.cache.ttl);
+    await this.cacheManager.set(
+      cacheKey,
+      { records: [...imaged_tours], totalRecords: tours.totalRecords },
+      this.cnfg.cache.ttl,
+    );
 
     return {
       status: HttpStatus.OK,
