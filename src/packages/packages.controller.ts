@@ -33,11 +33,13 @@ export class PackagesController {
     }-${pageSize}-${pageNumber}`;
     const dataFromCache = await this.cacheManager.get(cacheKey);
     if (dataFromCache) {
+      const records = [...(dataFromCache as any)];
       return {
         status: HttpStatus.OK,
         message: 'Package Retrieved Successfully.',
         data: {
-          ...(dataFromCache as any),
+          records,
+          totalRecords: records.length,
         },
       };
     }
