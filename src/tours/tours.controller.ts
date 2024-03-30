@@ -15,6 +15,7 @@ import { Cache } from 'cache-manager';
 import config from '../config/config';
 import { S3BucketService } from 'src/middlewares/s3.service';
 import { PackagesService } from 'src/packages/packages.service';
+import { TGetTrips } from './tours.dto';
 
 @ApiTags('Tours')
 @Controller('tours')
@@ -66,6 +67,7 @@ export class ToursController {
           package_details,
           price,
           discount,
+          pickup_time,
         } = data;
         const tour = {
           id,
@@ -75,6 +77,7 @@ export class ToursController {
           package_details,
           price,
           discount,
+          pickup_time,
           tour_banner_image: '',
           gallery: [],
         };
@@ -133,6 +136,7 @@ export class ToursController {
       tour_title,
       tour_banner_image,
       thumbnail,
+      pickup_time,
       package_details,
       price,
       discount,
@@ -146,6 +150,7 @@ export class ToursController {
       package_details,
       price,
       discount,
+      pickup_time,
       tour_banner_image: await this.s3Service.getImage(tour_banner_image),
       gallery: await Promise.all(
         galleryImageIds.map(async (gId) => {
@@ -169,18 +174,18 @@ export class ToursController {
   @Post('/trips')
   @ApiQuery({ name: 'showThumbnail', type: 'Boolean', required: false })
   @ApiBody({
-    type: 'Object',
+    type: TGetTrips,
     required: false,
     examples: {
-      ids: {
-        value: { ids: [] },
+      example1: {
+        value: { ids: [1] },
         description: 'Array of trip ids from tours and packages',
       },
     },
   })
   async getTrips(
     @Body() data: { ids: Array<string | number> },
-    @Query('showThumbnail') showThumbnail,
+    @Query('showThumbnail') showThumbnail: boolean,
   ): Promise<TResponseData> {
     if (!data.ids || data.ids.length === 0)
       return {
@@ -214,7 +219,15 @@ export class ToursController {
 
     const imaged_trips = await Promise.all(
       trips.map(async (data) => {
-        const { id, thumbnail, title, package_details, price, discount } = data;
+        const {
+          id,
+          thumbnail,
+          title,
+          package_details,
+          price,
+          pickup_time,
+          discount,
+        } = data;
         const tour = {
           id,
           thumbnail: showThumbnail
@@ -223,12 +236,18 @@ export class ToursController {
           title,
           package_details,
           price,
+          pickup_time,
           discount,
         };
         return tour;
       }),
     );
-    await this.cacheManager.set(cacheKey, imaged_trips, this.cnfg.cache.ttl);
+    await this.cacheManager.set(
+      cacheKey,
+      { records: imaged_trips, totalRecords: imaged_trips.length },
+      this.cnfg.cache.ttl,
+    );
+
     return {
       status: HttpStatus.OK,
       message: 'Trips Retrieved Successfully.',
