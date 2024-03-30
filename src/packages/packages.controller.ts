@@ -34,11 +34,9 @@ export class PackagesController {
     const dataFromCache = await this.cacheManager.get(cacheKey);
     if (dataFromCache) {
       return {
-        status: HttpStatus.OK,
+        status: HttpStatus.NOT_MODIFIED,
         message: 'Package Retrieved Successfully.',
-        data: {
-          ...(dataFromCache as any),
-        },
+        data: { ...(dataFromCache as any) },
       };
     }
     const packages = await this.packagesService.find({
@@ -86,7 +84,11 @@ export class PackagesController {
       }),
     );
 
-    await this.cacheManager.set(cacheKey, imaged_packages, this.cnfg.cache.ttl);
+    await this.cacheManager.set(
+      cacheKey,
+      { records: [...imaged_packages], totalRecords: packages.totalRecords },
+      this.cnfg.cache.ttl,
+    );
 
     return {
       status: HttpStatus.OK,

@@ -31,20 +31,17 @@ export class PdfService {
       mobileNumber1,
       nationality,
       mobileNumber2,
-      booking_date,
+      tour_date,
       booked_tours,
     } = content;
-
     const leadGuest = [lastname, firstname, middleInitial].join(' ');
     const adults = guests.filter((guest) => guest.age >= 18).length;
     const minors = guests.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(
       new Set([nationality, ...guests.map((e) => e.nationality)]),
     );
-    const paper = {
-      size: 'letter',
-      margin: 30,
-    };
+
+    const paper = { size: 'letter', margin: 30 };
     const doc = new PDFKit(paper);
 
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
@@ -222,7 +219,7 @@ export class PdfService {
 
       // Booking Date Value
       configureTextContent({
-        text: booking_date,
+        text: tour_date,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 160 + 55, y: y },
@@ -372,9 +369,12 @@ export class PdfService {
             property: 'date',
             width: 80,
           },
-          { label: 'Description', property: 'description', width: 190 },
-          { label: 'Time', property: 'time', width: 90 },
-          { label: 'Pax', property: 'pax', width: 90 },
+          // { label: 'Description', property: 'description', width: 190 },
+          // { label: 'Time', property: 'time', width: 90 },
+          // { label: 'Pax', property: 'pax', width: 90 },
+          { label: 'Description', property: 'description', width: 60 },
+          { label: 'Time', property: 'time', width: 40 },
+          { label: 'Pax', property: 'pax', width: 20 },
           {
             label: 'Sub-Total',
             property: 'subtotal',
