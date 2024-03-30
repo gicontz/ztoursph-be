@@ -5,7 +5,7 @@ export default () => ({
     port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
   },
   cache: {
-    ttl: parseInt(process.env.CACHE_TTL, 10) || 120,
+    ttl: parseInt(process.env.CACHE_TTL, 10) || 6000,
     aws_ttl: parseInt(process.env.AWS_S3_TTL, 10) || 1000,
   },
   maya: {

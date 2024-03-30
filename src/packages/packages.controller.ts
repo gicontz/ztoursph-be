@@ -86,7 +86,15 @@ export class PackagesController {
       }),
     );
 
+<<<<<<< HEAD
     await this.cacheManager.set(cacheKey, imaged_packages, this.cnfg.cache.ttl);
+=======
+    await this.cacheManager.set(
+      cacheKey,
+      { records: [...imaged_packages], totalRecords: packages.totalRecords },
+      this.cnfg.cache.ttl,
+    );
+>>>>>>> main
 
     return {
       status: HttpStatus.OK,

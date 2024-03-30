@@ -1,12 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Inject, Post } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { BookingsService } from './bookings.service';
