@@ -18,7 +18,7 @@ export class TPDFItenerary {
     category: 'tours' | 'packages';
     pax: number;
     date: string;
-    time: string;
+    pickup_time: string;
     description: string;
     subtotal: string;
   }[];

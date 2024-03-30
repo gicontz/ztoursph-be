@@ -390,7 +390,7 @@ export class PdfService {
           ...booked_tours.map((tour) => ({
             date: tour.date,
             description: tour.description,
-            time: tour.time,
+            time: tour.pickup_time,
             pax: tour.pax.toString(),
             subtotal: tour.subtotal,
           })),
