@@ -53,6 +53,11 @@ export class CheckoutController {
               id: 1,
               pax: 1,
               date: '2022-12-12',
+              participants: [{
+                name: 'Jane Doe',
+                age: 20,
+                nationality: 'Filipino',
+              }],
             },
           ],
         },

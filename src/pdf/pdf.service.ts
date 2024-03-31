@@ -22,8 +22,8 @@ export class PdfService {
 
   private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
     const {
-      lastname,
-      firstname,
+      lastName,
+      firstName,
       middleInitial,
       age,
       guests,
@@ -35,7 +35,7 @@ export class PdfService {
       booked_tours,
     } = content;
 
-    const leadGuest = [lastname, firstname, middleInitial].join(' ');
+    const leadGuest = [lastName, firstName, middleInitial].join(' ');
     const adults = guests.filter((guest) => guest.age >= 18).length;
     const minors = guests.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(

@@ -1,3 +1,4 @@
+import { TParticipant } from 'src/bookings/bookings.model';
 import { UserSex } from 'src/users/users.model';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -11,7 +12,7 @@ export type TCheckout = {
   birthday: Date;
   sex: UserSex;
   middle_init: string;
-  packages: string;
+  packages: TParticipant[];
   totalAmt: number;
 };
 

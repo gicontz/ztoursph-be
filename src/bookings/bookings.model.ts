@@ -4,6 +4,12 @@ export enum PaymentStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
   PENDING = 'PENDING',
+};
+
+export type TParticipant = {
+  name: string;
+  age: number;
+  nationality: string;
 }
 
 export type TBooking = {
@@ -13,6 +19,7 @@ export type TBooking = {
     id: string | number;
     pax: number;
     date: string;
+    participants: TParticipant[];
     category?: 'tours' | 'packages';
   }[];
   total_amt: number;

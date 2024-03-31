@@ -1,7 +1,7 @@
 export class TPDFItenerary {
-  readonly firstname: string;
+  readonly firstName: string;
   readonly middleInitial?: string;
-  readonly lastname: string;
+  readonly lastName: string;
   readonly age: number;
   readonly nationality: string;
   readonly email: string | undefined;

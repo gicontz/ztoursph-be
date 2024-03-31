@@ -23,8 +23,8 @@ export class PdfController {
       example1: {
         value: {
           content: {
-            firstname: 'John',
-            lastname: 'Doe',
+            firstName: 'John',
+            lastName: 'Doe',
             age: 20,
             sex: 'M',
             nationality: 'Filipino',
@@ -61,7 +61,7 @@ export class PdfController {
     @Query('upload') upload?: 'true' | 'false',
     @Res() res?: ExpressResponse,
   ) {
-    const fileName = `Itinerary-${Date.now()}-${body.content.lastname}.pdf`;
+    const fileName = `Itinerary-${Date.now()}-${body.content.lastName}.pdf`;
     const pdf = await this.PDFService.generateItenerary(body.content, fileName);
 
     if (upload === 'true') {
