@@ -21,6 +21,7 @@ export type TUser = {
   mobile_number2: string;
   birthday: Date;
   sex: UserSex;
+  nationality: string;
   role?: UserRole;
   enabled?: boolean;
   created_date?: Date;
@@ -44,6 +45,8 @@ export class UserModel {
   mobile_number2: string;
   @Column({ enum: UserSex, nullable: false, unique: true })
   sex: UserSex;
+  @Column({ type: 'text', nullable: false, unique: true })
+  nationality: string;
   @Column({ type: 'date', nullable: false })
   birthday: Date;
   @Column({

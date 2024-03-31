@@ -27,6 +27,11 @@ export type TMayaPayment = {
       email: string;
     };
   };
+  redirectUrl?: {
+    success: string;
+    failure: string;
+    cancel: string;
+  };
   requestReferenceNumber: string;
 };
 

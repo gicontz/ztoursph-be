@@ -10,20 +10,23 @@ export type TParticipant = {
   name: string;
   age: number;
   nationality: string;
+};
+
+export type TPackage = {
+  id: string | number;
+  pax: number;
+  date: string;
+  participants: TParticipant[];
+  category?: 'tours' | 'packages';
 }
 
 export type TBooking = {
   id?: string;
   user_id: string;
-  packages?: {
-    id: string | number;
-    pax: number;
-    date: string;
-    participants: TParticipant[];
-    category?: 'tours' | 'packages';
-  }[];
+  packages?: TPackage[];
   total_amt: number;
   paymentStatus: PaymentStatus;
+  reference_id: string;
   approval_code?: string;
   receipt?: string;
   itinerary?: string;
@@ -52,8 +55,10 @@ export class BookingModel {
   receipt: string;
   @Column({ type: 'text', nullable: false })
   itinerary: string;
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', nullable: false, default: new Date()})
   created_date: string;
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', nullable: false, default: new Date()})
   updated_date: string;
+  @Column({ type: 'text', nullable: false })
+  reference_id: string;
 }
