@@ -14,6 +14,8 @@ export class PackageModel {
   package_banner_image: string;
   @Column({ type: 'text', nullable: false })
   package_details: string;
+  @Column({ type: 'text', nullable: true })
+  pickup_time: string;
   @Column({ type: 'integer', nullable: false })
   price: number;
   @Column({ type: 'integer', nullable: false })

@@ -22,6 +22,7 @@ import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
 import config from '../config/config';
 import { format } from 'date-fns';
+import { uuidTo8Bits } from 'src/utils/hash';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -36,6 +37,50 @@ export class CheckoutController {
   ) {}
 
   private cnfg = config();
+
+  async calculateTotalAmts(data: TPreCheckout): Promise<any> {
+    const { booking } = data;
+    const ids = booking.map((b) => b.id);
+
+    const tours = await this.toursService.findByIds(ids as number[]);
+    const packages = await this.packageService.findByIds(ids as string[]);
+    const trips: Array<{ id: string | number; price: number; pax: number }> = [
+      ...tours.map(({ id, price }) => ({
+        id,
+        price,
+        pax: booking.find((b) => b.id === id).pax,
+      })),
+      ...packages.map(({ id, price }) => ({
+        id,
+        price,
+        pax: booking.find((b) => b.id === id).pax,
+      })),
+    ];
+
+    const subTotals = trips.map((t) => {
+      const { id, price, pax } = t;
+      return {
+        id,
+        pax,
+        subTotal: parseFloat(price as unknown as string) * pax,
+      };
+    });
+
+    const totalAmt = subTotals.reduce((acc, curr) => acc + curr.subTotal, 0);
+
+    const processingFee =
+      totalAmt * (this.cnfg.payments.processingFeeRates / 100) +
+      this.cnfg.payments.processingFee;
+
+    const totalAmtTbp = totalAmt + processingFee;
+
+    return {
+      subTotals,
+      totalAmt,
+      processingFee,
+      totalAmtTbp,
+    }
+  }
 
   @Post('/trips')
   @ApiBody({
@@ -53,6 +98,11 @@ export class CheckoutController {
               id: 1,
               pax: 1,
               date: '2022-12-12',
+              participants: [{
+                name: 'Jane Doe',
+                age: 20,
+                nationality: 'Filipino',
+              }],
             },
           ],
         },
@@ -65,6 +115,7 @@ export class CheckoutController {
       id: data.userId,
       email: data.userEmail,
     });
+    
     if (!userInfo) {
       // Create the user if not exists
       const newUserData = {
@@ -75,23 +126,29 @@ export class CheckoutController {
         mobile_number1: data.mobile_number1,
         mobile_number2: data.mobile_number2,
         birthday: data.birthday,
+        nationality: data.nationality,
         sex: data.sex,
       };
       userInfo = await this.userService.create(newUserData);
     }
     // Upon user verification, create booking
-    const { packages, totalAmt } = data;
+    const { packages } = data;
+    const totalAmts = await this.calculateTotalAmts({ booking: packages.map((p) => ({ id: p.id, pax: p.pax })) });
     const newBooking = await this.bookingService.create({
       packages: packages as any,
-      total_amt: totalAmt,
+      total_amt: totalAmts.totalAmt,
       user_id: userInfo.id,
       paymentStatus: PaymentStatus.UNPAID,
+      reference_id: uuidTo8Bits(),
     });
 
     return {
       status: HttpStatus.ACCEPTED,
       message: 'Trips Checkout Successfully!',
-      data: newBooking,
+      data: {
+        ...newBooking,
+        user: userInfo,
+      },
     };
   }
 
@@ -155,6 +212,7 @@ export class CheckoutController {
               email: userInfo.email,
             },
           },
+          redirectUrl: paymentData.redirectUrl,
           requestReferenceNumber: referenceId,
         });
         return data;
@@ -331,49 +389,14 @@ export class CheckoutController {
         message: 'Cannot Calculate Trips!',
       };
     }
-    const { booking } = data;
-    const ids = booking.map((b) => b.id);
 
-    const tours = await this.toursService.findByIds(ids as number[]);
-    const packages = await this.packageService.findByIds(ids as string[]);
-    const trips: Array<{ id: string | number; price: number; pax: number }> = [
-      ...tours.map(({ id, price }) => ({
-        id,
-        price,
-        pax: booking.find((b) => b.id === id).pax,
-      })),
-      ...packages.map(({ id, price }) => ({
-        id,
-        price,
-        pax: booking.find((b) => b.id === id).pax,
-      })),
-    ];
-
-    const subTotals = trips.map((t) => {
-      const { id, price, pax } = t;
-      return {
-        id,
-        pax,
-        subTotal: parseFloat(price as unknown as string) * pax,
-      };
-    });
-
-    const totalAmt = subTotals.reduce((acc, curr) => acc + curr.subTotal, 0);
-
-    const processingFee =
-      totalAmt * (this.cnfg.payments.processingFeeRates / 100) +
-      this.cnfg.payments.processingFee;
-
-    const totalAmtTbp = totalAmt + processingFee;
+    const totals = await this.calculateTotalAmts(data);
 
     return {
       status: HttpStatus.OK,
       message: 'Trips Calculated Successfully!',
       data: {
-        subTotals,
-        totalAmt,
-        processingFee,
-        totalAmtTbp,
+        ...totals
       },
     };
   }

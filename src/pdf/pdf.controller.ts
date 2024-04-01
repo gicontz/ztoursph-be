@@ -23,9 +23,10 @@ export class PdfController {
       example1: {
         value: {
           content: {
-            firstname: 'John',
-            lastname: 'Doe',
+            firstName: 'John',
+            lastName: 'Doe',
             age: 20,
+            sex: 'M',
             nationality: 'Filipino',
             email: 'test@test.com',
             mobileNumber1: 1234567890,
@@ -44,7 +45,7 @@ export class PdfController {
                 category: 'tours',
                 pax: 2,
                 date: '2022-12-12',
-                time: '12:00',
+                pickup_time: '12:00',
                 description: 'Test Description',
                 subtotal: '1000',
               },
@@ -60,7 +61,7 @@ export class PdfController {
     @Query('upload') upload?: 'true' | 'false',
     @Res() res?: ExpressResponse,
   ) {
-    const fileName = `Itinerary-${Date.now()}-${body.content.lastname}.pdf`;
+    const fileName = `Itinerary-${Date.now()}-${body.content.lastName}.pdf`;
     const pdf = await this.PDFService.generateItenerary(body.content, fileName);
 
     if (upload === 'true') {

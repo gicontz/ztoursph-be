@@ -1,3 +1,4 @@
+import { TPackage } from 'src/bookings/bookings.model';
 import { UserSex } from 'src/users/users.model';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -10,8 +11,9 @@ export type TCheckout = {
   mobile_number2: string;
   birthday: Date;
   sex: UserSex;
+  nationality: string;
   middle_init: string;
-  packages: string;
+  packages: TPackage[];
   totalAmt: number;
 };
 
@@ -42,6 +44,11 @@ export type TPayment = {
   receiptNumber: string | null;
   success_response: string;
   failed_response: string;
+  redirectUrl?: {
+    success: string;
+    failure: string;
+    cancel: string;
+  }
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };

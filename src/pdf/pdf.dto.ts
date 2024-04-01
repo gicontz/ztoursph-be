@@ -1,7 +1,7 @@
 export class TPDFItenerary {
-  readonly firstname: string;
+  readonly firstName: string;
   readonly middleInitial?: string;
-  readonly lastname: string;
+  readonly lastName: string;
   readonly age: number;
   readonly nationality: string;
   readonly email: string | undefined;
@@ -18,7 +18,7 @@ export class TPDFItenerary {
     category: 'tours' | 'packages';
     pax: number;
     date: string;
-    time: string;
+    pickup_time: string;
     description: string;
     subtotal: string;
   }[];
