@@ -36,6 +36,7 @@ export class PdfController {
             guests: {
               tourA: [
                 {
+                  id: '1231327',
                   firstName: 'Jan Russel',
                   lastName: 'Gorembalem',
                   middleInitial: 'R',
@@ -46,6 +47,7 @@ export class PdfController {
               ],
               tourB: [
                 {
+                  id: '1231324',
                   firstName: 'Migo',
                   lastName: 'Castro',
                   middleInitial: 'R',
@@ -56,6 +58,7 @@ export class PdfController {
               ],
               tourC: [
                 {
+                  id: '1231323',
                   firstName: 'Stephen',
                   lastName: 'Marquez',
                   middleInitial: 'R',

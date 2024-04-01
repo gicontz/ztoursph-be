@@ -22,6 +22,7 @@ export class TPDFItenerary {
 }
 
 export type TGuest = {
+  id: string;
   firstName: string;
   lastName: string;
   middleInitial: string;

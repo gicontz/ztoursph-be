@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary } from './pdf.dto';
-import { json } from 'stream/consumers';
 
 @Injectable()
 export class PdfService {
@@ -38,14 +37,9 @@ export class PdfService {
     } = content;
 
     const allGuests = Object.values(guests).flat();
-    const guestDetails = allGuests.map((guest) => ({
-      id: JSON.stringify(guest).replaceAll(/\s/g, '-'),
-      ...guest,
-    }));
-    console.log(guestDetails);
-    const uniqueGuests = Array.from(new Set(guestDetails.map(({ id }) => id)));
+    const uniqueGuests = Array.from(new Set(allGuests.map(({ id }) => id)));
     const masterList = uniqueGuests.map((id) =>
-      guestDetails.find((guest) => guest.id === id),
+      allGuests.find((guest) => guest.id === id),
     );
 
     const leadGuestDetail = {
