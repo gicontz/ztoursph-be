@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary } from './pdf.dto';
+import { json } from 'stream/consumers';
 
 @Injectable()
 export class PdfService {
@@ -24,6 +25,7 @@ export class PdfService {
     const {
       lastName,
       firstName,
+      suffix,
       middleInitial,
       age,
       guests,
@@ -35,11 +37,49 @@ export class PdfService {
       booked_tours,
     } = content;
 
-    const leadGuest = [lastName, firstName, middleInitial].join(' ');
-    const adults = guests.filter((guest) => guest.age >= 18).length;
-    const minors = guests.filter((guest) => guest.age < 18).length;
+    const allGuests = Object.values(guests).flat();
+    const guestDetails = allGuests.map((guest) => ({
+      id: JSON.stringify(guest).replaceAll(/\s/g, '-'),
+      ...guest,
+    }));
+    console.log(guestDetails);
+    const uniqueGuests = Array.from(new Set(guestDetails.map(({ id }) => id)));
+    const masterList = uniqueGuests.map((id) =>
+      guestDetails.find((guest) => guest.id === id),
+    );
+
+    const leadGuestDetail = {
+      firstName,
+      lastName,
+      middleInitial,
+      suffix,
+      age,
+      nationality,
+    };
+    const withLeadGuest = [...masterList, leadGuestDetail];
+
+    function fullName(
+      firstName: string,
+      lastName: string,
+      middleInitial?: string,
+      suffix?: string,
+    ): string {
+      const nameParts: string[] = [firstName, lastName];
+      if (middleInitial !== undefined && middleInitial.trim() !== '') {
+        nameParts.push(middleInitial);
+      }
+      if (suffix !== 'none' && suffix.trim() !== '') {
+        nameParts.push(suffix);
+      }
+
+      return nameParts.join(' ');
+    }
+
+    const leadGuest = fullName(firstName, lastName, middleInitial, suffix);
+    const adults = withLeadGuest.filter((guest) => guest.age >= 18).length;
+    const minors = withLeadGuest.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(
-      new Set([nationality, ...guests.map((e) => e.nationality)]),
+      new Set([...withLeadGuest.map((e) => e.nationality)]),
     );
     const paper = {
       size: 'letter',
@@ -183,7 +223,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: guests.length,
+        text: withLeadGuest.length,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin + 45, y: y + 13 },
@@ -482,9 +522,9 @@ export class PdfService {
 
     const div_7 = async (x, y) => {
       doc.addPage(paper);
-      const guestData = [...guests].map((e) => {
+      const guestData = [...masterList].map((e) => {
         return {
-          name: e.name,
+          name: fullName(e.firstName, e.lastName, e.middleInitial, e.suffix),
           age: e.age.toString(),
           nationality: e.nationality,
         };
@@ -502,14 +542,7 @@ export class PdfService {
           { label: 'Nationality', property: 'nationality', width: 200 },
         ],
 
-        datas: [
-          { name: leadGuest, age, nationality: nationality },
-          ...guestData,
-        ] as {
-          name: string;
-          age: string;
-          nationality: string;
-        }[],
+        datas: guestData,
       };
 
       configureTextContent({

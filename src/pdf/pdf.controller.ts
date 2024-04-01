@@ -25,6 +25,7 @@ export class PdfController {
           content: {
             firstName: 'John',
             lastName: 'Doe',
+            suffix: 'Jr',
             age: 20,
             sex: 'M',
             nationality: 'Filipino',
@@ -32,13 +33,38 @@ export class PdfController {
             mobileNumber1: 1234567890,
             mobileNumber2: 1234567890,
             booking_date: '2022-12-12',
-            guests: [
-              {
-                name: 'Jane Doe',
-                age: 20,
-                nationality: 'Filipino',
-              },
-            ],
+            guests: {
+              tourA: [
+                {
+                  firstName: 'Jan Russel',
+                  lastName: 'Gorembalem',
+                  middleInitial: 'R',
+                  suffix: 'none',
+                  age: 19,
+                  nationality: 'Filipino',
+                },
+              ],
+              tourB: [
+                {
+                  firstName: 'Migo',
+                  lastName: 'Castro',
+                  middleInitial: 'R',
+                  suffix: 'none',
+                  age: 18,
+                  nationality: 'Filipino',
+                },
+              ],
+              tourC: [
+                {
+                  firstName: 'Stephen',
+                  lastName: 'Marquez',
+                  middleInitial: 'R',
+                  suffix: 'none',
+                  age: 13,
+                  nationality: 'Filipino',
+                },
+              ],
+            },
             booked_tours: [
               {
                 id: 1,
@@ -79,7 +105,6 @@ export class PdfController {
         'Content-Disposition',
         `attachment; filename="${fileName}"`,
       );
-
       return res.status(201).send(pdf.buffer);
     }
   }

@@ -79,7 +79,7 @@ export class CheckoutController {
       totalAmt,
       processingFee,
       totalAmtTbp,
-    }
+    };
   }
 
   @Post('/trips')
@@ -98,11 +98,13 @@ export class CheckoutController {
               id: 1,
               pax: 1,
               date: '2022-12-12',
-              participants: [{
-                name: 'Jane Doe',
-                age: 20,
-                nationality: 'Filipino',
-              }],
+              participants: [
+                {
+                  name: 'Jane Doe',
+                  age: 20,
+                  nationality: 'Filipino',
+                },
+              ],
             },
           ],
         },
@@ -115,7 +117,7 @@ export class CheckoutController {
       id: data.userId,
       email: data.userEmail,
     });
-    
+
     if (!userInfo) {
       // Create the user if not exists
       const newUserData = {
@@ -133,7 +135,9 @@ export class CheckoutController {
     }
     // Upon user verification, create booking
     const { packages } = data;
-    const totalAmts = await this.calculateTotalAmts({ booking: packages.map((p) => ({ id: p.id, pax: p.pax })) });
+    const totalAmts = await this.calculateTotalAmts({
+      booking: packages.map((p) => ({ id: p.id, pax: p.pax })),
+    });
     const newBooking = await this.bookingService.create({
       packages: packages as any,
       total_amt: totalAmts.totalAmt,
@@ -396,7 +400,7 @@ export class CheckoutController {
       status: HttpStatus.OK,
       message: 'Trips Calculated Successfully!',
       data: {
-        ...totals
+        ...totals,
       },
     };
   }
