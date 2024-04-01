@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary } from './pdf.dto';
+import { format } from 'date-fns/format';
 
 @Injectable()
 export class PdfService {
@@ -256,7 +257,7 @@ export class PdfService {
 
       // Booking Date Value
       configureTextContent({
-        text: booking_date,
+        text: format(new Date(booking_date), 'MM/dd/yyyy'),
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 160 + 55, y: y },
@@ -405,6 +406,7 @@ export class PdfService {
             label: 'Tour Date',
             property: 'date',
             width: 80,
+            renderer: (value) => format(value, 'MM/dd/yyyy'),
           },
           { label: 'Description', property: 'description', width: 190 },
           { label: 'Time', property: 'time', width: 90 },
