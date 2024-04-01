@@ -71,10 +71,10 @@ export class PdfService {
     }
 
     const leadGuest = fullName(firstName, lastName, middleInitial, suffix);
-    const adults = withLeadGuest.filter((guest) => guest.age >= 18).length;
-    const minors = withLeadGuest.filter((guest) => guest.age < 18).length;
+    const adults = masterList.filter((guest) => guest.age >= 18).length;
+    const minors = masterList.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(
-      new Set([...withLeadGuest.map((e) => e.nationality)]),
+      new Set([...masterList.map((e) => e.nationality)]),
     );
     const paper = {
       size: 'letter',
@@ -218,7 +218,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: withLeadGuest.length,
+        text: masterList.length,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin + 45, y: y + 13 },
