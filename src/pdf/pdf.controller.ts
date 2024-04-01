@@ -70,7 +70,16 @@ export class PdfController {
             },
             booked_tours: [
               {
-                id: 1,
+                id: 'tourA',
+                category: 'tours',
+                pax: 2,
+                date: '2022-12-12',
+                pickup_time: '12:00',
+                description: 'Test Description',
+                subtotal: '1000',
+              },
+              {
+                id: 'tourB',
                 category: 'tours',
                 pax: 2,
                 date: '2022-12-12',

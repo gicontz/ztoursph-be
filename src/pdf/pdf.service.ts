@@ -51,6 +51,10 @@ export class PdfService {
       age,
       nationality,
     };
+    const guestOnBookedTours = booked_tours.map((e) => {
+      return { [`${e.id}`]: guests[e.id] };
+    });
+
     const withLeadGuest = [...masterList, leadGuestDetail];
 
     function fullName(
