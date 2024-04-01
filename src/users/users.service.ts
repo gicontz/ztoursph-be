@@ -17,10 +17,13 @@ export class UsersService {
     const query = {
       id: data.id,
       email: data.email,
-    }
+    };
     if (!query.id) delete query.id;
     if (!query.email) delete query.email;
-    const dd = await this.userRepository.findOneBy({ id: data.id, email: data.email });
+    const dd = await this.userRepository.findOneBy({
+      id: data.id,
+      email: data.email,
+    });
     return dd;
   }
 
