@@ -44,27 +44,59 @@ export class CheckoutController {
 
     const tours = await this.toursService.findByIds(ids as number[]);
     const packages = await this.packageService.findByIds(ids as string[]);
-    const trips: Array<{ id: string | number; price: number; pax: number }> = [
-      ...tours.map(({ id, price }) => ({
+    const trips: Array<{
+      id: string | number;
+      price: number;
+      pax: number;
+      discount?: number;
+      min_pax?: number;
+      per_pax_price?: number;
+    }> = [
+      ...tours.map(({ id, price, discount, min_pax, per_pax_price }) => ({
         id,
         price,
         pax: booking.find((b) => b.id === id).pax,
+        discount,
+        min_pax,
+        per_pax_price,
       })),
-      ...packages.map(({ id, price }) => ({
+      ...packages.map(({ id, price, discount, min_pax, per_pax_price }) => ({
         id,
         price,
         pax: booking.find((b) => b.id === id).pax,
+        discount,
+        min_pax,
+        per_pax_price,
       })),
     ];
 
     const subTotals = trips.map((t) => {
-      const { id, price, pax } = t;
+      const { id, price, pax, discount, min_pax, per_pax_price } = t;
+
+      const getTotal = (): number => {
+        if (min_pax && min_pax >= pax) return Number(price);
+        if (min_pax && min_pax < pax) {
+          const extraPax = pax - min_pax;
+          const addOnFees = extraPax * per_pax_price;
+          return Number(price) + addOnFees;
+        }
+
+        return Number(price) * pax;
+      };
+
+      const getSubtotal = (): number => {
+        if (!discount) {
+          return getTotal();
+        }
+        return getTotal() * (1 - discount / 100);
+      };
+
       return {
         id,
         pax,
-        subTotal: parseFloat(price as unknown as string) * pax,
-        //discount: ,
-        // total:
+        subTotal: parseFloat(getSubtotal().toFixed(2)),
+        discount,
+        total: getTotal(),
       };
     });
 
@@ -380,9 +412,8 @@ export class CheckoutController {
         summary: 'Pre Checkout Data Example',
         value: {
           booking: [
-            { id: '1', pax: 1 },
-            { id: '2', pax: 2 },
-            { id: '3', pax: 3 },
+            { id: '95918c0e-96e8-4d8c-b5fb-9ef03f8faed1', pax: 2 },
+            { id: '69aa8814-6da4-47d7-9f8c-29554e4ddc55', pax: 2 },
           ],
         },
       },

@@ -38,4 +38,8 @@ export class TourModel {
   image9: string;
   @Column({ type: 'text', nullable: false })
   thumbnail: string;
+  @Column({ type: 'integer', nullable: true })
+  min_pax: number;
+  @Column({ type: 'integer', nullable: true })
+  per_pax_price: number;
 }
