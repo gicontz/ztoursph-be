@@ -48,7 +48,7 @@ export type TPayment = {
     success: string;
     failure: string;
     cancel: string;
-  }
+  };
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };

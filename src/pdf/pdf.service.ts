@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary } from './pdf.dto';
+import { format } from 'date-fns/format';
 
 @Injectable()
 export class PdfService {
@@ -24,6 +25,7 @@ export class PdfService {
     const {
       lastName,
       firstName,
+      suffix,
       middleInitial,
       age,
       guests,
@@ -35,11 +37,48 @@ export class PdfService {
       booked_tours,
     } = content;
 
-    const leadGuest = [lastName, firstName, middleInitial].join(' ');
-    const adults = guests.filter((guest) => guest.age >= 18).length;
-    const minors = guests.filter((guest) => guest.age < 18).length;
+    const allGuests = Object.values(guests).flat();
+    const uniqueGuests = Array.from(new Set(allGuests.map(({ id }) => id)));
+    const masterList = uniqueGuests.map((id) =>
+      allGuests.find((guest) => guest.id === id),
+    );
+
+    const leadGuestDetail = {
+      firstName,
+      lastName,
+      middleInitial,
+      suffix,
+      age,
+      nationality,
+    };
+    const guestOnBookedTours = booked_tours.map((e) => {
+      return { [`${e.id}`]: guests[e.id] };
+    });
+
+    const withLeadGuest = [...masterList, leadGuestDetail];
+
+    function fullName(
+      firstName: string,
+      lastName: string,
+      middleInitial?: string,
+      suffix?: string,
+    ): string {
+      const nameParts: string[] = [firstName, lastName];
+      if (middleInitial !== undefined && middleInitial.trim() !== '') {
+        nameParts.push(middleInitial);
+      }
+      if (suffix !== 'none' && suffix.trim() !== '') {
+        nameParts.push(suffix);
+      }
+
+      return nameParts.join(' ');
+    }
+
+    const leadGuest = fullName(firstName, lastName, middleInitial, suffix);
+    const adults = masterList.filter((guest) => guest.age >= 18).length;
+    const minors = masterList.filter((guest) => guest.age < 18).length;
     const nationalityUnique = Array.from(
-      new Set([nationality, ...guests.map((e) => e.nationality)]),
+      new Set([...masterList.map((e) => e.nationality)]),
     );
     const paper = {
       size: 'letter',
@@ -183,7 +222,7 @@ export class PdfService {
 
       // Quantity Value
       configureTextContent({
-        text: guests.length,
+        text: masterList.length,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin + 45, y: y + 13 },
@@ -222,7 +261,7 @@ export class PdfService {
 
       // Booking Date Value
       configureTextContent({
-        text: booking_date,
+        text: format(new Date(booking_date), 'MM/dd/yyyy'),
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 160 + 55, y: y },
@@ -371,6 +410,7 @@ export class PdfService {
             label: 'Tour Date',
             property: 'date',
             width: 80,
+            renderer: (value) => format(value, 'MM/dd/yyyy'),
           },
           { label: 'Description', property: 'description', width: 190 },
           { label: 'Time', property: 'time', width: 90 },
@@ -482,9 +522,9 @@ export class PdfService {
 
     const div_7 = async (x, y) => {
       doc.addPage(paper);
-      const guestData = [...guests].map((e) => {
+      const guestData = [...masterList].map((e) => {
         return {
-          name: e.name,
+          name: fullName(e.firstName, e.lastName, e.middleInitial, e.suffix),
           age: e.age.toString(),
           nationality: e.nationality,
         };
@@ -502,14 +542,7 @@ export class PdfService {
           { label: 'Nationality', property: 'nationality', width: 200 },
         ],
 
-        datas: [
-          { name: leadGuest, age, nationality: nationality },
-          ...guestData,
-        ] as {
-          name: string;
-          age: string;
-          nationality: string;
-        }[],
+        datas: guestData,
       };
 
       configureTextContent({

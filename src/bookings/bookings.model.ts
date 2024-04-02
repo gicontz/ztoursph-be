@@ -4,7 +4,7 @@ export enum PaymentStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
   PENDING = 'PENDING',
-};
+}
 
 export type TParticipant = {
   name: string;
@@ -18,7 +18,7 @@ export type TPackage = {
   date: string;
   participants: TParticipant[];
   category?: 'tours' | 'packages';
-}
+};
 
 export type TBooking = {
   id?: string;
@@ -55,9 +55,9 @@ export class BookingModel {
   receipt: string;
   @Column({ type: 'text', nullable: false })
   itinerary: string;
-  @Column({ type: 'date', nullable: false, default: new Date()})
+  @Column({ type: 'date', nullable: false, default: new Date() })
   created_date: string;
-  @Column({ type: 'date', nullable: false, default: new Date()})
+  @Column({ type: 'date', nullable: false, default: new Date() })
   updated_date: string;
   @Column({ type: 'text', nullable: false })
   reference_id: string;
