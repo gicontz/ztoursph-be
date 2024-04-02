@@ -567,7 +567,7 @@ export class PdfService {
   private templateBookingItinerary(content: string, ...rest: any) {
     const doc = new PDFKit({ size: 'A7' });
 
-    // Style PDF File
+    // Style PDF File`
     doc.fontSize(10).text(content, 5, 5, { align: 'left' });
     doc.fontSize(10).text(rest?.id, 20, 20, { align: 'left' });
     doc.end();
