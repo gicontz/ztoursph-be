@@ -5,6 +5,7 @@ import { format } from 'date-fns/format';
 
 @Injectable()
 export class PdfService {
+
   async generateItenerary(
     content: TPDFItenerary,
     filename: string,
@@ -23,11 +24,11 @@ export class PdfService {
 
   private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
     const {
+      referenceNumber,
       lastName,
       firstName,
       suffix,
       middleInitial,
-      age,
       guests,
       email,
       mobileNumber1,
@@ -42,49 +43,24 @@ export class PdfService {
     const masterList = uniqueGuests.map((id) =>
       allGuests.find((guest) => guest.id === id),
     );
-
-    const leadGuestDetail = {
-      firstName,
-      lastName,
-      middleInitial,
-      suffix,
-      age,
-      nationality,
-    };
-    const guestOnBookedTours = booked_tours.map((e) => {
-      return { [`${e.id}`]: guests[e.id] };
-    });
-
-    const withLeadGuest = [...masterList, leadGuestDetail];
-
-    function fullName(
-      firstName: string,
-      lastName: string,
-      middleInitial?: string,
-      suffix?: string,
-    ): string {
-      const nameParts: string[] = [firstName, lastName];
-      if (middleInitial !== undefined && middleInitial.trim() !== '') {
-        nameParts.push(middleInitial);
-      }
-      if (suffix !== 'none' && suffix.trim() !== '') {
-        nameParts.push(suffix);
-      }
-
-      return nameParts.join(' ');
+  
+    const joinStrings = (...arr) => {
+      return arr.filter(Boolean).join(' ');
     }
 
-    const leadGuest = fullName(firstName, lastName, middleInitial, suffix);
-    const adults = masterList.filter((guest) => guest.age >= 18).length;
-    const minors = masterList.filter((guest) => guest.age < 18).length;
-    const nationalityUnique = Array.from(
-      new Set([...masterList.map((e) => e.nationality)]),
-    );
+    const leadGuest = joinStrings(firstName, middleInitial, lastName, suffix);
+    const adults = masterList.filter((guest) => guest.age >= 7).length;
+    const kids = masterList.filter((guest) => guest.age < 7).length;
+    
     const paper = {
       size: 'letter',
       margin: 30,
     };
     const doc = new PDFKit(paper);
+
+    const bgImage = 'src/assets/images/pageBg.png';
+
+    doc.image(bgImage, 0, 0, { width: doc.page.width, height: doc.page.height });
 
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
@@ -137,7 +113,7 @@ export class PdfService {
           x: x + paper.margin,
           y: y + paper.margin + 32,
         },
-        text: `Invoice Number: ${'INV-082023'}`,
+        text: `Booking Reference Number: ${referenceNumber}`,
       });
 
       configureTextContent({
@@ -234,25 +210,22 @@ export class PdfService {
         text: adults.toString(),
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 40, y: y + 13 * 2 },
+        position: { x: x + paper.margin + 30, y: y + 13 * 2 },
         options: { width: 80 },
       });
 
       // Minor/Kid Value
       configureTextContent({
-        text: minors.toString(),
+        text: kids.toString(),
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 50, y: y + 13 * 3 },
+        position: { x: x + paper.margin + 30, y: y + 13 * 3 },
         options: { width: 80 },
       });
 
       // Nationality Value
       configureTextContent({
-        text:
-          typeof nationalityUnique === 'string'
-            ? nationalityUnique
-            : nationalityUnique.join(', '),
+        text: nationality,
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin + 55, y: y + 13 * 4 },
@@ -261,7 +234,7 @@ export class PdfService {
 
       // Booking Date Value
       configureTextContent({
-        text: format(new Date(booking_date), 'MM/dd/yyyy'),
+        text: format(new Date(booking_date), 'MMM dd, yyyy'),
         font: FONT_HELVETICA,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 160 + 55, y: y },
@@ -338,7 +311,7 @@ export class PdfService {
       });
 
       configureTextContent({
-        text: 'Minor/Kid: ',
+        text: 'Kids: ',
         font: FONT_HELVETICA_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 3 },
@@ -410,9 +383,13 @@ export class PdfService {
             label: 'Tour Date',
             property: 'date',
             width: 80,
-            renderer: (value) => format(value, 'MM/dd/yyyy'),
+            renderer: (value) => {
+              if (value)
+                return format(value, 'MMM dd, yyyy');
+              return '';
+            }
           },
-          { label: 'Description', property: 'description', width: 190 },
+          { label: 'Tour Name', property: 'title', width: 190 },
           { label: 'Time', property: 'time', width: 90 },
           { label: 'Pax', property: 'pax', width: 90 },
           {
@@ -429,16 +406,16 @@ export class PdfService {
         datas: [
           ...booked_tours.map((tour) => ({
             date: tour.date,
-            description: tour.description,
+            title: tour.title,
             time: tour.pickup_time,
             pax: tour.pax.toString(),
             subtotal: tour.subtotal,
           })),
           {
             date: '',
-            description: '',
+            title: '',
             time: '',
-            pax: 'GrandTotal',
+            pax: 'Grand Total',
             subtotal: booked_tours
               .reduce((acc, cur) => acc + Number(cur.subtotal), 0)
               .toString(),
@@ -524,9 +501,49 @@ export class PdfService {
       doc.addPage(paper);
       const guestData = [...masterList].map((e) => {
         return {
-          name: fullName(e.firstName, e.lastName, e.middleInitial, e.suffix),
+          ...e,
           age: e.age.toString(),
-          nationality: e.nationality,
+        };
+      });
+
+      const table = {
+        addPage: true,
+        headers: [
+          {
+            label: 'Name',
+            property: 'name',
+            width: 275,
+          },
+          { label: 'Age', property: 'age', width: 75 },
+          { label: 'Nationality', property: 'nationality', width: 200 },
+        ],
+
+        datas: guestData,
+      };
+
+      configureTextContent({
+        text: 'Masterlist',
+        font: 'Helvetica-Bold',
+        size: FONT_SIZE.medium + 2,
+        position: { x: x, y: y + paper.margin },
+        options: { width: doc.page.width, align: 'center' },
+      });
+
+      await doc.table(table, {
+        x: x + paper.margin,
+        y: y + paper.margin + 40,
+        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+      });
+    };
+
+    const tourList = async (guestList, x, y) => {
+      doc.addPage(paper);
+      const id = Object.keys(guestList)[0];
+      const guestData = [...guestList].map((e) => {
+        return {
+          ...e,
+          age: e.age.toString(),
         };
       });
 

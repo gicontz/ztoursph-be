@@ -5,6 +5,8 @@ import { S3BucketService } from 'src/middlewares/s3.service';
 import { TPDFItenerary } from './pdf.dto';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
+import { ToursService } from 'src/tours/tours.service';
+import { PackagesService } from 'src/packages/packages.service';
 
 @ApiTags('Itinerary')
 @Controller('itinerary')
@@ -13,6 +15,8 @@ export class PdfController {
     private readonly PDFService: PdfService,
     private readonly s3Service: S3Service,
     private readonly seServiceBucket: S3BucketService,
+    private readonly toursService: ToursService,
+    private readonly packageService: PackagesService,
   ) {}
 
   @Post()
@@ -75,7 +79,7 @@ export class PdfController {
                 pax: 2,
                 date: '2022-12-12',
                 pickup_time: '12:00',
-                description: 'Test Description',
+                title: 'Test Description',
                 subtotal: '1000',
               },
               {
@@ -84,7 +88,7 @@ export class PdfController {
                 pax: 2,
                 date: '2022-12-12',
                 pickup_time: '12:00',
-                description: 'Test Description',
+                title: 'Test Description',
                 subtotal: '1000',
               },
             ],
@@ -100,7 +104,22 @@ export class PdfController {
     @Res() res?: ExpressResponse,
   ) {
     const fileName = `Itinerary-${Date.now()}-${body.content.lastName}.pdf`;
-    const pdf = await this.PDFService.generateItenerary(body.content, fileName);
+    const booked_tours = body.content.booked_tours;
+
+    const tourIds = booked_tours.map((tour) => typeof tour.id === 'number' ? tour.id : undefined).filter(Boolean);
+
+    const packageIds = booked_tours.map((tour) => typeof tour.id === 'string' ? tour.id : undefined).filter(Boolean);
+
+    const toursInfo = await this.toursService.findByIds(tourIds);
+    const packagesInfo = await this.packageService.findByIds(packageIds);
+    const allTours = [...toursInfo, ...packagesInfo];
+
+    const btWithTime = booked_tours.map((tour) => ({
+      ...tour,
+      pickup_time: allTours.find((t) => t.id === tour.id)?.pickup_time,
+    }));
+
+    const pdf = await this.PDFService.generateItenerary({ ...body.content, booked_tours: btWithTime }, fileName);
 
     if (upload === 'true') {
       try {

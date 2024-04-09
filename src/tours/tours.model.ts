@@ -14,6 +14,10 @@ export class TourModel {
   package_details: string;
   @Column({ type: 'integer', nullable: false })
   price: number;
+  @Column({ type: 'integer', nullable: false })
+  per_pax_price: number;
+  @Column({ type: 'integer', nullable: false })
+  min_pax: number;
   @Column({ type: 'text', nullable: false })
   pickup_time: string;
   @Column({ type: 'integer', nullable: false })

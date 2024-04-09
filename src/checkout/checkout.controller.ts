@@ -44,25 +44,63 @@ export class CheckoutController {
 
     const tours = await this.toursService.findByIds(ids as number[]);
     const packages = await this.packageService.findByIds(ids as string[]);
-    const trips: Array<{ id: string | number; price: number; pax: number }> = [
-      ...tours.map(({ id, price }) => ({
+    const trips: Array<{ 
+      id: string | number; 
+      price: number;
+      per_pax_price: number;
+      min_pax: number;
+      discount: number;
+      pax: number;
+      ages: number[],
+    }> = [
+      ...tours.map(({ id, price, discount, min_pax, per_pax_price }) => ({
         id,
         price,
+        min_pax,
+        per_pax_price,
+        discount,
         pax: booking.find((b) => b.id === id).pax,
+        ages: booking.find((b) => b.id === id).ages,
       })),
-      ...packages.map(({ id, price }) => ({
+      ...packages.map(({ id, price, discount, min_pax, per_pax_price }) => ({
         id,
         price,
+        min_pax,
+        per_pax_price,
+        discount,
         pax: booking.find((b) => b.id === id).pax,
+        ages: booking.find((b) => b.id === id).ages,
       })),
     ];
 
+    const getSubTotal = (prices: { price: number, pax: number, discount: number, min_pax: number, per_pax_price: number, ages: number[] }) => {
+      const {
+        price,
+        pax,
+        discount,
+        min_pax,
+        per_pax_price,
+        ages,
+      } = prices;
+      const discountedPrice = price - price * (discount / 100);
+      const floatPax = ages.reduce((acc, curr) => {
+        if (curr <= 3) return acc - 1;
+        if (curr < 7) return acc - 0.5;
+        return acc;
+      }, pax);
+      if (min_pax > 1) {
+        const additionalPax = floatPax - min_pax;
+        return (discountedPrice + (additionalPax * per_pax_price));
+      }
+      return discountedPrice * floatPax;
+    };
+
     const subTotals = trips.map((t) => {
-      const { id, price, pax } = t;
+      const { id, price, min_pax, per_pax_price, discount, ages, pax } = t;
       return {
         id,
         pax,
-        subTotal: parseFloat(price as unknown as string) * pax,
+        subTotal: getSubTotal({ price, pax, discount, min_pax, per_pax_price, ages }),
       };
     });
 
@@ -136,7 +174,7 @@ export class CheckoutController {
     // Upon user verification, create booking
     const { packages } = data;
     const totalAmts = await this.calculateTotalAmts({
-      booking: packages.map((p) => ({ id: p.id, pax: p.pax })),
+      booking: packages.map((p) => ({ id: p.id, pax: p.pax, ages: p.participants.map((a) => a.age)})),
     });
     const newBooking = await this.bookingService.create({
       packages: packages as any,

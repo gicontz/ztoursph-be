@@ -1,4 +1,5 @@
 export class TPDFItenerary {
+  readonly referenceNumber: string;
   readonly firstName: string;
   readonly middleInitial?: string;
   readonly lastName: string;
@@ -16,17 +17,14 @@ export class TPDFItenerary {
     pax: number;
     date: string;
     pickup_time: string;
-    description: string;
+    title: string;
     subtotal: string;
   }[];
 }
 
 export type TGuest = {
   id: string;
-  firstName: string;
-  lastName: string;
-  middleInitial: string;
-  suffix: NameSuffix;
+  name: string;
   age: number;
   nationality: string;
 };

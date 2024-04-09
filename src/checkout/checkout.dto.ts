@@ -18,6 +18,7 @@ export type TBookedTrip = {
   readonly id: string | number;
   readonly category?: TCategory;
   readonly pax: number;
+  readonly ages: number[];
   readonly date?: Date;
 };
 

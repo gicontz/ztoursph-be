@@ -19,6 +19,10 @@ export class PackageModel {
   @Column({ type: 'integer', nullable: false })
   price: number;
   @Column({ type: 'integer', nullable: false })
+  per_pax_price: number;
+  @Column({ type: 'integer', nullable: false })
+  min_pax: number;
+  @Column({ type: 'integer', nullable: false })
   discount: number;
   @Column({ type: 'text', nullable: false })
   image1: string;
