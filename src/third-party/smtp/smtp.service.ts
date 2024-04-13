@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import nodemailer from 'nodemailer';
 import { MailOptions } from './smtp.dto';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nodemailer = require('nodemailer');
 
 @Injectable()
 export class SmtpService {
@@ -8,7 +9,6 @@ export class SmtpService {
   private port = '';
   private username = '';
   private password = '';
-  private mailOptions: MailOptions;
 
   constructor() {
     this.host = process.env.EMAIL_HOST;
@@ -19,34 +19,33 @@ export class SmtpService {
 
   public async sendingEmail({ from, to, html, subject }: MailOptions) {
     try {
-      const transporter = await nodemailer.createTransport({
+      const transporter = nodemailer.createTransport({
         host: this.host,
-        port: this.port,
+        port: parseFloat(this.port),
         auth: {
           user: this.username,
           pass: this.password,
         },
       });
-
-      // can create template.
-      this.mailOptions = {
-        from,
-        to,
-        subject,
-        html,
+      transporter.sendMail(
+        {
+          from,
+          to,
+          subject,
+          html,
+        },
+        function (error) {
+          if (error) {
+            throw new Error(error);
+          }
+        },
+      );
+      return {
+        message: 'Succesful', // not finish
       };
-
-      await transporter.sendMail(this.mailOptions, (error) => {
-        if (error) {
-          throw new Error(error);
-        }
-        return {
-          message: 'succesful', // not finish
-        };
-      });
     } catch (error) {
       return {
-        message: error, // not finish
+        message: `Not successful ${error}`, // not finish
       };
     }
   }

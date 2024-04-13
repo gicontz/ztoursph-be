@@ -24,6 +24,7 @@ import config from '../config/config';
 import { format } from 'date-fns';
 import { uuidTo8Bits } from 'src/utils/hash';
 import { SmtpService } from 'src/third-party/smtp/smtp.service';
+import { MailOptions, TSendEmail } from 'src/third-party/smtp/smtp.dto';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -456,14 +457,33 @@ export class CheckoutController {
     };
   }
   @Post('/sendemail')
-  async name(@Body() data) {
-    const detail = {
-      from: data.sender,
-      to: data.receiver,
-      body: data.body,
-      subject: data.subject,
-    };
-    this.smptService.sendingEmail(detail);
-    return;
+  @ApiBody({
+    required: true,
+    type: TSendEmail,
+    examples: {
+      example1: {
+        summary: 'Send Email',
+        value: {
+          from: 'mailtrap@demomailtrap.com',
+          to: 'janrusselgorembalem4@gmail.com',
+          html: `<body>` + `<p>Hey Dude</p>` + `</body>`,
+          subject: 'This is Ztours ph',
+        },
+      },
+    },
+  })
+  async name(@Body() data: MailOptions) {
+    try {
+      const detail = {
+        from: data.from,
+        to: data.to,
+        html: data.html,
+        subject: data.subject,
+      };
+      const result = await this.smptService.sendingEmail(detail);
+      return result;
+    } catch (error) {
+      return error;
+    }
   }
 }

@@ -33,8 +33,9 @@ import { SmtpService } from 'src/third-party/smtp/smtp.service';
     BookingsService,
     ToursService,
     PackagesService,
+    SmtpService,
   ],
-  exports: [CheckoutService, UsersService, BookingsService, SmtpService],
+  exports: [CheckoutService, UsersService, BookingsService],
   controllers: [CheckoutController],
 })
 export class CheckoutModule {}
