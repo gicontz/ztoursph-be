@@ -14,6 +14,7 @@ import { PackagesService } from 'src/packages/packages.service';
 import { TourModel } from 'src/tours/tours.model';
 import { PackageModel } from 'src/packages/packages.model';
 import { PaymentLogsModel } from './logs.model';
+import { SmtpService } from 'src/third-party/smtp/smtp.service';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { PaymentLogsModel } from './logs.model';
     ToursService,
     PackagesService,
   ],
-  exports: [CheckoutService, UsersService, BookingsService],
+  exports: [CheckoutService, UsersService, BookingsService, SmtpService],
   controllers: [CheckoutController],
 })
 export class CheckoutModule {}

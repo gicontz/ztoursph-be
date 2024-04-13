@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import nodemailer from 'nodemailer';
+import { MailOptions } from './smtp.dto';
 
 @Injectable()
 export class SmtpService {
@@ -7,12 +8,7 @@ export class SmtpService {
   private port = '';
   private username = '';
   private password = '';
-  private mailOptions: {
-    from: string;
-    to: string;
-    subject: string;
-    html: string;
-  };
+  private mailOptions: MailOptions;
 
   constructor() {
     this.host = process.env.EMAIL_HOST;
@@ -21,7 +17,7 @@ export class SmtpService {
     this.password = process.env.EMAIL_PASSWORD;
   }
 
-  public async sendingEmail({ sender, receiver, body, subject }) {
+  public async sendingEmail({ from, to, html, subject }: MailOptions) {
     try {
       const transporter = await nodemailer.createTransport({
         host: this.host,
@@ -34,10 +30,10 @@ export class SmtpService {
 
       // can create template.
       this.mailOptions = {
-        from: sender,
-        to: receiver,
-        subject: subject,
-        html: body,
+        from,
+        to,
+        subject,
+        html,
       };
 
       await transporter.sendMail(this.mailOptions, (error) => {
