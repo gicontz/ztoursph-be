@@ -44,14 +44,14 @@ export class CheckoutController {
 
     const tours = await this.toursService.findByIds(ids as number[]);
     const packages = await this.packageService.findByIds(ids as string[]);
-    const trips: Array<{ 
-      id: string | number; 
+    const trips: Array<{
+      id: string | number;
       price: number;
       per_pax_price: number;
       min_pax: number;
       discount: number;
       pax: number;
-      ages: number[],
+      ages: number[];
     }> = [
       ...tours.map(({ id, price, discount, min_pax, per_pax_price }) => ({
         id,
@@ -73,24 +73,26 @@ export class CheckoutController {
       })),
     ];
 
-    const getSubTotal = (prices: { price: number, pax: number, discount: number, min_pax: number, per_pax_price: number, ages: number[] }) => {
-      const {
-        price,
-        pax,
-        discount,
-        min_pax,
-        per_pax_price,
-        ages,
-      } = prices;
+    const getSubTotal = (prices: {
+      price: number;
+      pax: number;
+      discount: number;
+      min_pax: number;
+      per_pax_price: number;
+      ages: number[];
+    }) => {
+      const { price, pax, discount, min_pax, per_pax_price, ages } = prices;
       const discountedPrice = price - price * (discount / 100);
       const floatPax = ages.reduce((acc, curr) => {
-        if (curr <= 3) return acc - 1;
-        if (curr < 7) return acc - 0.5;
+        if (curr <= 3)
+          return acc - (1 - this.cnfg.payments.discounts.kidsUnderFour / 100);
+        if (curr < 7)
+          return acc - (1 - this.cnfg.payments.discounts.kidsUnderSeven / 100);
         return acc;
       }, pax);
       if (min_pax > 1) {
         const additionalPax = floatPax - min_pax;
-        return (discountedPrice + (additionalPax * per_pax_price));
+        return discountedPrice + additionalPax * per_pax_price;
       }
       return discountedPrice * floatPax;
     };
@@ -100,7 +102,14 @@ export class CheckoutController {
       return {
         id,
         pax,
-        subTotal: getSubTotal({ price, pax, discount, min_pax, per_pax_price, ages }),
+        subTotal: getSubTotal({
+          price,
+          pax,
+          discount,
+          min_pax,
+          per_pax_price,
+          ages,
+        }),
       };
     });
 
@@ -174,7 +183,11 @@ export class CheckoutController {
     // Upon user verification, create booking
     const { packages } = data;
     const totalAmts = await this.calculateTotalAmts({
-      booking: packages.map((p) => ({ id: p.id, pax: p.pax, ages: p.participants.map((a) => a.age)})),
+      booking: packages.map((p) => ({
+        id: p.id,
+        pax: p.pax,
+        ages: p.participants.map((a) => a.age),
+      })),
     });
     const newBooking = await this.bookingService.create({
       packages: packages as any,
