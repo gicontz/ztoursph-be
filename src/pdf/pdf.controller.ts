@@ -31,6 +31,7 @@ export class PdfController {
             lastName: 'Doe',
             suffix: 'Jr',
             age: 20,
+            birthday: '2002-12-12',
             sex: 'M',
             nationality: 'Filipino',
             email: 'test@test.com',
@@ -106,9 +107,13 @@ export class PdfController {
     const fileName = `Itinerary-${Date.now()}-${body.content.lastName}.pdf`;
     const booked_tours = body.content.booked_tours;
 
-    const tourIds = booked_tours.map((tour) => typeof tour.id === 'number' ? tour.id : undefined).filter(Boolean);
+    const tourIds = booked_tours
+      .map((tour) => (typeof tour.id === 'number' ? tour.id : undefined))
+      .filter(Boolean);
 
-    const packageIds = booked_tours.map((tour) => typeof tour.id === 'string' ? tour.id : undefined).filter(Boolean);
+    const packageIds = booked_tours
+      .map((tour) => (typeof tour.id === 'string' ? tour.id : undefined))
+      .filter(Boolean);
 
     const toursInfo = await this.toursService.findByIds(tourIds);
     const packagesInfo = await this.packageService.findByIds(packageIds);
@@ -119,7 +124,10 @@ export class PdfController {
       pickup_time: allTours.find((t) => t.id === tour.id)?.pickup_time,
     }));
 
-    const pdf = await this.PDFService.generateItenerary({ ...body.content, booked_tours: btWithTime }, fileName);
+    const pdf = await this.PDFService.generateItenerary(
+      { ...body.content, booked_tours: btWithTime },
+      fileName,
+    );
 
     if (upload === 'true') {
       try {

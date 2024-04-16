@@ -14,6 +14,9 @@ import { PackagesService } from 'src/packages/packages.service';
 import { TourModel } from 'src/tours/tours.model';
 import { PackageModel } from 'src/packages/packages.model';
 import { PaymentLogsModel } from './logs.model';
+import { S3Service } from 'src/third-party/aws-sdk/s3.object';
+import { S3BucketService } from 'src/middlewares/s3.service';
+import { PdfService } from 'src/pdf/pdf.service';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { PaymentLogsModel } from './logs.model';
     BookingsService,
     ToursService,
     PackagesService,
+    S3Service,
+    S3BucketService,
+    PdfService,
   ],
   exports: [CheckoutService, UsersService, BookingsService],
   controllers: [CheckoutController],

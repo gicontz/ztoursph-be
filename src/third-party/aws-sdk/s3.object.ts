@@ -13,7 +13,7 @@ import config from '../../config/config';
 
 export type TFile = {
   bucketname: string;
-  fieldname: string;
+  fieldname?: string;
   buffer: Buffer;
   filename: string;
   mimetype: string;
@@ -31,7 +31,7 @@ export class S3Service {
   private cnfg = config();
 
   public async uploadFiles(
-    files: any[],
+    files: TFile[],
   ): Promise<
     | AWS.AbortMultipartUploadCommandOutput[]
     | AWS.CompleteMultipartUploadCommandOutput[]
