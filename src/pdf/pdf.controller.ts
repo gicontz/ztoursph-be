@@ -76,8 +76,6 @@ export class PdfController {
     @Query('upload') upload?: 'true' | 'false',
     @Res() res?: ExpressResponse,
   ) {
-    console.log(body.content);
-
     const fileName = `Itinerary-${Date.now()}-${body.content.lastName}.pdf`;
     const booked_tours = body.content.booked_tours;
 
@@ -95,6 +93,7 @@ export class PdfController {
 
     const btWithTime = booked_tours.map((tour) => ({
       ...tour,
+      // title: allTours.find((t) => t.id === tour.id).tour_title,
       pickup_time: allTours.find((t) => t.id === tour.id)?.pickup_time,
     }));
 

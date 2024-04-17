@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
+import { title } from 'process';
+import { margins } from 'pdfkit/js/page';
 
 @Injectable()
 export class PdfService {
@@ -508,7 +510,6 @@ export class PdfService {
       });
 
       const table = {
-        addPage: true,
         headers: [
           {
             label: 'Name',
@@ -532,52 +533,75 @@ export class PdfService {
 
       await doc.table(table, {
         x: x + paper.margin,
-        y: y + paper.margin + 40,
+        // y: y + paper.margin + 40,
         prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
         prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        padding: [5, 5, 5, 5],
       });
     };
 
-    // const tourList = async (guestList, x, y) => {
-    //   doc.addPage(paper);
-    //   const id = Object.keys(guestList)[0];
-    //   const guestData = [...guestList].map((e) => {
-    //     return {
-    //       ...e,
-    //       age: e.age.toString(),
-    //     };
-    //   });
+    const div_9 = async (x, y) => {
+      doc.addPage(paper);
+      const guestEachTour = [...booked_tours]
+        .map((d) => {
+          return [
+            {
+              id: '',
+              name: d.title,
+              age: '',
+              nationality: '',
+            },
+            ...guests[d.id].map((e) => {
+              return { ...e, name: '                ' + e.name };
+            }),
+          ];
+        })
+        .flat(1) as {
+        age: string;
+        id: string;
+        name: string;
+        nationality: string;
+      }[];
 
-    //   const table = {
-    //     addPage: true,
-    //     headers: [
-    //       {
-    //         label: 'Name',
-    //         property: 'name',
-    //         width: 275,
-    //       },
-    //       { label: 'Age', property: 'age', width: 75 },
-    //       { label: 'Nationality', property: 'nationality', width: 200 },
-    //     ],
+      const table = {
+        addPage: true,
+        headers: [
+          {
+            label: 'Tour        Name',
+            property: 'name',
+            width: 550,
+          },
+        ],
+        datas: guestEachTour,
+      };
 
-    //     datas: guestData,
-    //   };
+      configureTextContent({
+        text: 'Guest Per Tour',
+        font: 'Helvetica-Bold',
+        size: FONT_SIZE.medium + 2,
+        position: { x: x, y: y + paper.margin },
+        options: { width: doc.page.width, align: 'center' },
+      });
 
-    //   configureTextContent({
-    //     text: 'Masterlist',
-    //     font: 'Helvetica-Bold',
-    //     size: FONT_SIZE.medium + 2,
-    //     position: { x: x, y: y + paper.margin },
-    //     options: { width: doc.page.width, align: 'center' },
-    //   });
+      await doc.table(table, {
+        x: x + paper.margin,
+        // y: y + paper.margin + 40,
+        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareRow: (row) => {
+          if (row?.id) {
+            return doc.font(FONT_HELVETICA).fontSize(FONT_SIZE.default);
+          }
 
-    //   await doc.table(table, {
-    //     x: x + paper.margin,
-    //     y: y + paper.margin + 40,
-    //     prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-    //     prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-    //   });
-    // };
+          return doc.font(FONT_HELVETICA_BOLD).fontSize(FONT_SIZE.default + 2);
+        },
+        hideHeader: true,
+        divider: {
+          header: { disabled: false, width: 0.5, opacity: 0.5 },
+          horizontal: { disabled: true },
+        },
+        padding: [5, 5, 5, 5],
+      });
+    };
 
     const addDivContent = function (func, x, y) {
       return func(x, y);
@@ -591,6 +615,7 @@ export class PdfService {
     addDivContent(div_5, 0, 300);
     addDivContent(div_6, 0, -50);
     addDivContent(div_7, 0, 0);
+    addDivContent(div_9, 0, 0);
 
     doc.end();
 
