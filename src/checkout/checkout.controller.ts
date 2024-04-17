@@ -25,6 +25,10 @@ import { format } from 'date-fns';
 import { uuidTo8Bits } from 'src/utils/hash';
 import { SmtpService } from 'src/third-party/smtp/smtp.service';
 import { MailOptions, TSendEmail } from 'src/third-party/smtp/smtp.dto';
+import { S3BucketService } from 'src/middlewares/s3.service';
+import { S3Service } from 'src/third-party/aws-sdk/s3.object';
+import { PdfService } from 'src/pdf/pdf.service';
+import { NameSuffix, TPDFItenerary } from 'src/pdf/pdf.dto';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -37,6 +41,9 @@ export class CheckoutController {
     private readonly packageService: PackagesService,
     private readonly checkoutService: CheckoutService,
     private readonly smptService: SmtpService,
+    private readonly s3Service: S3BucketService,
+    private readonly s3ServiceMiddleware: S3Service,
+    private readonly generateItinerary: PdfService,
   ) {}
 
   private cnfg = config();
@@ -87,8 +94,10 @@ export class CheckoutController {
       const { price, pax, discount, min_pax, per_pax_price, ages } = prices;
       const discountedPrice = price - price * (discount / 100);
       const floatPax = ages.reduce((acc, curr) => {
-        if (curr <= 3) return acc - 1;
-        if (curr < 7) return acc - 0.5;
+        if (curr <= 3)
+          return acc - (1 - this.cnfg.payments.discounts.kidsUnderFour / 100);
+        if (curr < 7)
+          return acc - (1 - this.cnfg.payments.discounts.kidsUnderSeven / 100);
         return acc;
       }, pax);
       if (min_pax > 1) {
@@ -190,12 +199,61 @@ export class CheckoutController {
         ages: p.participants.map((a) => a.age),
       })),
     });
-    const newBooking = await this.bookingService.create({
+
+    const bookingInfo = {
       packages: packages as any,
       total_amt: totalAmts.totalAmt,
       user_id: userInfo.id,
       paymentStatus: PaymentStatus.UNPAID,
       reference_id: uuidTo8Bits(),
+    };
+
+    const guestsPerTour = packages.reduce((acc, curr) => {
+      return {
+        ...acc,
+        [curr.id]: curr.participants.map((p) => ({
+          id: uuidTo8Bits(),
+          name: p.name,
+          age: p.age,
+          nationality: p.nationality,
+        })),
+      };
+    }, {});
+
+    const pdfData: TPDFItenerary = {
+      referenceNumber: bookingInfo.reference_id,
+      firstName: userInfo.first_name,
+      middleInitial: userInfo.middle_init,
+      lastName: userInfo.last_name,
+      suffix: NameSuffix.None,
+      birthday: userInfo.birthday as unknown as string,
+      email: userInfo.email,
+      mobileNumber1: userInfo.mobile_number1,
+      mobileNumber2: userInfo.mobile_number2,
+      booking_date: new Date().toISOString(),
+      guests: guestsPerTour,
+      booked_tours: packages as any,
+      nationality: userInfo.nationality,
+    };
+
+    // Return as object and generate the buffer
+    const itineraryFileName = `${
+      bookingInfo.reference_id
+    }_itinerary_${new Date().toISOString()}.pdf`;
+    const itinerary = await this.generateItinerary.generateItenerary(
+      pdfData,
+      itineraryFileName,
+    );
+
+    // Upload the itinerary to s3bucket
+    await this.s3ServiceMiddleware.uploadFiles([itinerary]);
+
+    // Create a uri to that specific s3 file
+    const itineraryFileUri = await this.s3Service.getPDF(itineraryFileName);
+
+    const newBooking = await this.bookingService.create({
+      ...bookingInfo,
+      itinerary: itineraryFileName,
     });
 
     return {
@@ -204,6 +262,7 @@ export class CheckoutController {
       data: {
         ...newBooking,
         user: userInfo,
+        itineraryFileUri,
       },
     };
   }

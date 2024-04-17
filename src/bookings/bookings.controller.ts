@@ -7,6 +7,7 @@ import { S3BucketService } from 'src/middlewares/s3.service';
 import { Cache } from 'cache-manager';
 import { PdfService } from 'src/pdf/pdf.service';
 import { S3Service } from 'src/third-party/aws-sdk/s3.object';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags('Bookings')
 @Controller('bookings')
@@ -17,34 +18,25 @@ export class BookingsController {
     private readonly s3Service: S3BucketService,
     private readonly s3ServiceMiddleware: S3Service,
     private readonly generateItinerary: PdfService,
+    private readonly userService: UsersService,
   ) {}
 
   @Post('/info')
   @ApiBody({ required: true })
-  async createBooking(
+  async getBooking(
     @Body('booking') booking: { id: string },
   ): Promise<TResponseData> {
     const bookingId = booking.id;
     try {
       const bookingInfo = await this.bookingService.findOne(bookingId);
+      const user = await this.userService.findOne({ id: bookingInfo.user_id });
 
-      // Return as object and generate the buffer
-      const itinerary = this.generateItinerary.generateBookingItinerary(
-        bookingInfo,
-        bookingId,
-      );
-
-      // Upload the itinerary to s3bucket
-
-      const pdfFile = await this.s3ServiceMiddleware.uploadFiles([itinerary]);
-
-      // Create a uri to that specific s3 file
-      const itineraryFileUri = await this.s3Service.getPDF(pdfFile);
+      const itineraryUri = await this.s3Service.getPDF(bookingInfo.itinerary);
 
       return {
         status: HttpStatus.OK,
         message: 'Booking Information has been retrieved',
-        data: { ...bookingInfo, itineraryFileUri },
+        data: { ...bookingInfo, mainGuest: { ...user }, itineraryUri },
       };
     } catch (e) {
       return {

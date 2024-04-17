@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
-import { TPDFItenerary } from './pdf.dto';
+import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
 
 @Injectable()
 export class PdfService {
-
   async generateItenerary(
     content: TPDFItenerary,
     filename: string,
     bucketname?: string | undefined,
-  ): Promise<any> {
+  ): Promise<TPDFMeta> {
     const doc = this.templatePDFItenerary(content);
     const buffer = await this.streamToBuffer(doc);
 
@@ -43,15 +42,15 @@ export class PdfService {
     const masterList = uniqueGuests.map((id) =>
       allGuests.find((guest) => guest.id === id),
     );
-  
+
     const joinStrings = (...arr) => {
       return arr.filter(Boolean).join(' ');
-    }
+    };
 
     const leadGuest = joinStrings(firstName, middleInitial, lastName, suffix);
     const adults = masterList.filter((guest) => guest.age >= 7).length;
     const kids = masterList.filter((guest) => guest.age < 7).length;
-    
+
     const paper = {
       size: 'letter',
       margin: 30,
@@ -60,7 +59,10 @@ export class PdfService {
 
     const bgImage = 'src/assets/images/pageBg.png';
 
-    doc.image(bgImage, 0, 0, { width: doc.page.width, height: doc.page.height });
+    doc.image(bgImage, 0, 0, {
+      width: doc.page.width,
+      height: doc.page.height,
+    });
 
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
@@ -384,10 +386,9 @@ export class PdfService {
             property: 'date',
             width: 80,
             renderer: (value) => {
-              if (value)
-                return format(value, 'MMM dd, yyyy');
+              if (value) return format(value, 'MMM dd, yyyy');
               return '';
-            }
+            },
           },
           { label: 'Tour Name', property: 'title', width: 190 },
           { label: 'Time', property: 'time', width: 90 },
@@ -537,46 +538,46 @@ export class PdfService {
       });
     };
 
-    const tourList = async (guestList, x, y) => {
-      doc.addPage(paper);
-      const id = Object.keys(guestList)[0];
-      const guestData = [...guestList].map((e) => {
-        return {
-          ...e,
-          age: e.age.toString(),
-        };
-      });
+    // const tourList = async (guestList, x, y) => {
+    //   doc.addPage(paper);
+    //   const id = Object.keys(guestList)[0];
+    //   const guestData = [...guestList].map((e) => {
+    //     return {
+    //       ...e,
+    //       age: e.age.toString(),
+    //     };
+    //   });
 
-      const table = {
-        addPage: true,
-        headers: [
-          {
-            label: 'Name',
-            property: 'name',
-            width: 275,
-          },
-          { label: 'Age', property: 'age', width: 75 },
-          { label: 'Nationality', property: 'nationality', width: 200 },
-        ],
+    //   const table = {
+    //     addPage: true,
+    //     headers: [
+    //       {
+    //         label: 'Name',
+    //         property: 'name',
+    //         width: 275,
+    //       },
+    //       { label: 'Age', property: 'age', width: 75 },
+    //       { label: 'Nationality', property: 'nationality', width: 200 },
+    //     ],
 
-        datas: guestData,
-      };
+    //     datas: guestData,
+    //   };
 
-      configureTextContent({
-        text: 'Masterlist',
-        font: 'Helvetica-Bold',
-        size: FONT_SIZE.medium + 2,
-        position: { x: x, y: y + paper.margin },
-        options: { width: doc.page.width, align: 'center' },
-      });
+    //   configureTextContent({
+    //     text: 'Masterlist',
+    //     font: 'Helvetica-Bold',
+    //     size: FONT_SIZE.medium + 2,
+    //     position: { x: x, y: y + paper.margin },
+    //     options: { width: doc.page.width, align: 'center' },
+    //   });
 
-      await doc.table(table, {
-        x: x + paper.margin,
-        y: y + paper.margin + 40,
-        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-        prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-      });
-    };
+    //   await doc.table(table, {
+    //     x: x + paper.margin,
+    //     y: y + paper.margin + 40,
+    //     prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+    //     prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+    //   });
+    // };
 
     const addDivContent = function (func, x, y) {
       return func(x, y);
@@ -598,7 +599,7 @@ export class PdfService {
 
   async generateBookingItinerary(
     content: any,
-    id: string,
+    id?: string,
     bucketname?: string | undefined,
   ): Promise<any> {
     const doc = this.templateBookingItinerary(content, id);

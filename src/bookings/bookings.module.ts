@@ -7,10 +7,22 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookingsController } from './bookings.controller';
 import { PdfService } from 'src/pdf/pdf.service';
+import { UsersService } from 'src/users/users.service';
+import { UserModel } from 'src/users/users.model';
 
 @Module({
-  providers: [BookingsService, S3Service, S3BucketService, PdfService],
-  imports: [CacheModule.register(), TypeOrmModule.forFeature([BookingModel])],
+  providers: [
+    BookingsService,
+    S3Service,
+    S3BucketService,
+    PdfService,
+    UsersService,
+  ],
+  imports: [
+    CacheModule.register(),
+    TypeOrmModule.forFeature([BookingModel]),
+    TypeOrmModule.forFeature([UserModel]),
+  ],
   exports: [BookingsService],
   controllers: [BookingsController],
 })

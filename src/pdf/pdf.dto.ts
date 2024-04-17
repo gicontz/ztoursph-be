@@ -4,11 +4,11 @@ export class TPDFItenerary {
   readonly middleInitial?: string;
   readonly lastName: string;
   readonly suffix: NameSuffix;
-  readonly age: number;
+  readonly birthday: string;
   readonly nationality: string;
   readonly email: string | undefined;
-  readonly mobileNumber1: number;
-  readonly mobileNumber2: number;
+  readonly mobileNumber1: string;
+  readonly mobileNumber2: string;
   readonly booking_date: string;
   readonly guests?: { [tourId: string | number]: TGuest[] };
   readonly booked_tours?: {
@@ -29,7 +29,7 @@ export type TGuest = {
   nationality: string;
 };
 
-enum NameSuffix {
+export enum NameSuffix {
   None = '',
   Jr = 'Jr',
   Sr = 'Sr',
@@ -57,3 +57,10 @@ enum NameSuffix {
   XXIII = 'XXIII',
   XXIV = 'XXIV',
 }
+
+export type TPDFMeta = {
+  bucketname: string;
+  filename: string;
+  buffer: Buffer;
+  mimetype: string;
+};
