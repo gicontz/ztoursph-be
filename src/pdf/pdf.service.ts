@@ -426,19 +426,15 @@ export class PdfService {
         ],
       };
       // the magic (async/await)
-
-      await doc.table(
-        { ...table },
-        {
-          x: x + paper.margin,
-          y: y,
-          prepareHeader: () =>
-            doc.font('Helvetica').fontSize(FONT_SIZE.default),
-          prepareRow() {
-            return doc.font('Helvetica').fontSize(FONT_SIZE.default);
-          },
+      await doc.table(table, {
+        x: x + paper.margin,
+        y: y,
+        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareRow() {
+          return doc.font('Helvetica').fontSize(FONT_SIZE.default);
         },
-      );
+        padding: [5, 5, 5, 5],
+      });
     };
 
     const div_6 = (x, y) => {
@@ -541,66 +537,57 @@ export class PdfService {
     };
 
     const div_9 = async (x, y) => {
-      doc.addPage(paper);
-      const guestEachTour = [...booked_tours]
-        .map((d) => {
-          return [
+      // Table Template
+      const tablePerGuestTour = async function (title, guests) {
+        doc.addPage(paper);
+        const eachTable = {
+          addPage: true,
+          headers: [
             {
-              id: '',
-              name: d.title,
-              age: '',
-              nationality: '',
+              label: 'Name',
+              property: 'name',
+              width: 367,
             },
-            ...guests[d.id].map((e) => {
-              return { ...e, name: '                ' + e.name };
-            }),
-          ];
-        })
-        .flat(1) as {
-        age: string;
-        id: string;
-        name: string;
-        nationality: string;
-      }[];
+            {
+              label: 'Age',
+              property: 'age',
+              width: 91.5,
+            },
+            {
+              label: 'Nationality',
+              property: 'nationality',
+              width: 91.5,
+            },
+          ],
+          datas: guests,
+        };
 
-      const table = {
-        addPage: true,
-        headers: [
-          {
-            label: 'Tour        Name',
-            property: 'name',
-            width: 550,
-          },
-        ],
-        datas: guestEachTour,
-      };
+        configureTextContent({
+          text: title,
+          font: 'Helvetica-Bold',
+          size: FONT_SIZE.medium + 2,
+          position: { x: x, y: y + paper.margin },
+          options: { width: doc.page.width, align: 'center' },
+        });
 
-      configureTextContent({
-        text: 'Guest Per Tour',
-        font: 'Helvetica-Bold',
-        size: FONT_SIZE.medium + 2,
-        position: { x: x, y: y + paper.margin },
-        options: { width: doc.page.width, align: 'center' },
-      });
-
-      await doc.table(table, {
-        x: x + paper.margin,
-        // y: y + paper.margin + 40,
-        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-        prepareRow: (row) => {
-          if (row?.id) {
+        await doc.table(eachTable, {
+          x: x + paper.margin,
+          prepareHeader: () =>
+            doc.font('Helvetica').fontSize(FONT_SIZE.default),
+          prepareRow: () => {
             return doc.font(FONT_HELVETICA).fontSize(FONT_SIZE.default);
-          }
-
-          return doc.font(FONT_HELVETICA_BOLD).fontSize(FONT_SIZE.default + 2);
-        },
-        hideHeader: true,
-        divider: {
-          header: { disabled: false, width: 0.5, opacity: 0.5 },
-          horizontal: { disabled: true },
-        },
-        padding: [5, 5, 5, 5],
-      });
+          },
+          padding: [5, 5, 5, 5],
+        });
+      };
+      // Function
+      (async () => {
+        await Promise.all(
+          booked_tours?.map(async (d) => {
+            await tablePerGuestTour(d.title, guests[d.id]);
+          }),
+        );
+      })();
     };
 
     const addDivContent = function (func, x, y) {
