@@ -13,6 +13,12 @@ import { PackagesService } from 'src/packages/packages.service';
   imports: [TypeOrmModule.forFeature([TourModel, PackageModel])],
   controllers: [PdfController],
   exports: [PdfService],
-  providers: [PdfService, S3Service, S3BucketService, ToursService, PackagesService],
+  providers: [
+    PdfService,
+    S3Service,
+    S3BucketService,
+    ToursService,
+    PackagesService,
+  ],
 })
 export class PdfModule {}

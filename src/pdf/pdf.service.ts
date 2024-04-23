@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
+import { title } from 'process';
+import { margins } from 'pdfkit/js/page';
 
 @Injectable()
 export class PdfService {
@@ -424,19 +426,15 @@ export class PdfService {
         ],
       };
       // the magic (async/await)
-
-      await doc.table(
-        { ...table },
-        {
-          x: x + paper.margin,
-          y: y,
-          prepareHeader: () =>
-            doc.font('Helvetica').fontSize(FONT_SIZE.default),
-          prepareRow() {
-            return doc.font('Helvetica').fontSize(FONT_SIZE.default);
-          },
+      await doc.table(table, {
+        x: x + paper.margin,
+        y: y,
+        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareRow() {
+          return doc.font('Helvetica').fontSize(FONT_SIZE.default);
         },
-      );
+        padding: [5, 5, 5, 5],
+      });
     };
 
     const div_6 = (x, y) => {
@@ -508,7 +506,6 @@ export class PdfService {
       });
 
       const table = {
-        addPage: true,
         headers: [
           {
             label: 'Name',
@@ -532,52 +529,66 @@ export class PdfService {
 
       await doc.table(table, {
         x: x + paper.margin,
-        y: y + paper.margin + 40,
+        // y: y + paper.margin + 40,
         prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
         prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        padding: [5, 5, 5, 5],
       });
     };
 
-    // const tourList = async (guestList, x, y) => {
-    //   doc.addPage(paper);
-    //   const id = Object.keys(guestList)[0];
-    //   const guestData = [...guestList].map((e) => {
-    //     return {
-    //       ...e,
-    //       age: e.age.toString(),
-    //     };
-    //   });
+    const div_9 = async (x, y) => {
+      // Table Template
+      const tablePerGuestTour = async function (title, guests) {
+        doc.addPage(paper);
+        const eachTable = {
+          addPage: true,
+          headers: [
+            {
+              label: 'Name',
+              property: 'name',
+              width: 367,
+            },
+            {
+              label: 'Age',
+              property: 'age',
+              width: 91.5,
+            },
+            {
+              label: 'Nationality',
+              property: 'nationality',
+              width: 91.5,
+            },
+          ],
+          datas: guests,
+        };
 
-    //   const table = {
-    //     addPage: true,
-    //     headers: [
-    //       {
-    //         label: 'Name',
-    //         property: 'name',
-    //         width: 275,
-    //       },
-    //       { label: 'Age', property: 'age', width: 75 },
-    //       { label: 'Nationality', property: 'nationality', width: 200 },
-    //     ],
+        configureTextContent({
+          text: title,
+          font: 'Helvetica-Bold',
+          size: FONT_SIZE.medium + 2,
+          position: { x: x, y: y + paper.margin },
+          options: { width: doc.page.width, align: 'center' },
+        });
 
-    //     datas: guestData,
-    //   };
-
-    //   configureTextContent({
-    //     text: 'Masterlist',
-    //     font: 'Helvetica-Bold',
-    //     size: FONT_SIZE.medium + 2,
-    //     position: { x: x, y: y + paper.margin },
-    //     options: { width: doc.page.width, align: 'center' },
-    //   });
-
-    //   await doc.table(table, {
-    //     x: x + paper.margin,
-    //     y: y + paper.margin + 40,
-    //     prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-    //     prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-    //   });
-    // };
+        await doc.table(eachTable, {
+          x: x + paper.margin,
+          prepareHeader: () =>
+            doc.font('Helvetica').fontSize(FONT_SIZE.default),
+          prepareRow: () => {
+            return doc.font(FONT_HELVETICA).fontSize(FONT_SIZE.default);
+          },
+          padding: [5, 5, 5, 5],
+        });
+      };
+      // Function
+      (async () => {
+        await Promise.all(
+          booked_tours?.map(async (d) => {
+            await tablePerGuestTour(d.title, guests[d.id]);
+          }),
+        );
+      })();
+    };
 
     const addDivContent = function (func, x, y) {
       return func(x, y);
@@ -591,6 +602,7 @@ export class PdfService {
     addDivContent(div_5, 0, 300);
     addDivContent(div_6, 0, -50);
     addDivContent(div_7, 0, 0);
+    addDivContent(div_9, 0, 0);
 
     doc.end();
 
