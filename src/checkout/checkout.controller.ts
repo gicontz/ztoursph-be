@@ -23,6 +23,8 @@ import { PackagesService } from 'src/packages/packages.service';
 import config from '../config/config';
 import { format } from 'date-fns';
 import { uuidTo8Bits } from 'src/utils/hash';
+import { SmtpService } from 'src/third-party/smtp/smtp.service';
+import { MailOptions, TSendEmail } from 'src/third-party/smtp/smtp.dto';
 import { S3BucketService } from 'src/middlewares/s3.service';
 import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { PdfService } from 'src/pdf/pdf.service';
@@ -38,6 +40,7 @@ export class CheckoutController {
     private readonly toursService: ToursService,
     private readonly packageService: PackagesService,
     private readonly checkoutService: CheckoutService,
+    private readonly smptService: SmtpService,
     private readonly s3Service: S3BucketService,
     private readonly s3ServiceMiddleware: S3Service,
     private readonly generateItinerary: PdfService,
@@ -511,5 +514,35 @@ export class CheckoutController {
         ...totals,
       },
     };
+  }
+  @Post('/sendemail')
+  @ApiBody({
+    required: true,
+    type: TSendEmail,
+    examples: {
+      example1: {
+        summary: 'Send Email',
+        value: {
+          from: 'mailtrap@demomailtrap.com',
+          to: 'janrusselgorembalem4@gmail.com',
+          html: `<body>` + `<p>Hey Dude</p>` + `</body>`,
+          subject: 'This is Ztours ph',
+        },
+      },
+    },
+  })
+  async name(@Body() data: MailOptions) {
+    try {
+      const detail = {
+        from: data.from,
+        to: data.to,
+        html: data.html,
+        subject: data.subject,
+      };
+      const result = await this.smptService.sendingEmail(detail);
+      return result;
+    } catch (error) {
+      return error;
+    }
   }
 }

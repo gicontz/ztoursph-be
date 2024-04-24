@@ -9,6 +9,7 @@ import { CheckoutModule } from './checkout/checkout.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { UsersModule } from './users/users.module';
 import { PdfModule } from './pdf/pdf.module';
+import { SmtpService } from './third-party/smtp/smtp.service';
 
 @Module({
   imports: [
@@ -35,6 +36,6 @@ import { PdfModule } from './pdf/pdf.module';
     PdfModule,
   ],
   controllers: [],
-  providers: [AppService],
+  providers: [AppService, SmtpService],
 })
 export class AppModule {}
