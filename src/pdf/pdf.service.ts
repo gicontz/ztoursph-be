@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
-import { title } from 'process';
-import { margins } from 'pdfkit/js/page';
 
 @Injectable()
 export class PdfService {
@@ -59,9 +57,13 @@ export class PdfService {
     };
     const doc = new PDFKit(paper);
 
-    const bgImage = 'src/assets/images/pageBg.png';
+    const assets = {
+      bgImage: 'src/assets/images/pageBg.png',
+      logo: 'src/assets/images/logo.png',
+      signature: 'src/assets/images/signature.png',
+    };
 
-    doc.image(bgImage, 0, 0, {
+    doc.image(assets.bgImage, 0, 0, {
       width: doc.page.width,
       height: doc.page.height,
     });
@@ -128,8 +130,11 @@ export class PdfService {
           timeZone: 'Asia/Manila',
         }).format(new Date())}`,
       });
-    };
 
+      doc.image(assets.logo, JUSTIFY_END + x + -175, y + paper.margin - 10, {
+        width: 125,
+      });
+    };
     const div_2 = (x, y) => {
       configureTextContent({
         size: FONT_SIZE.default,
@@ -488,6 +493,9 @@ export class PdfService {
         },
         options: { width: 150, align: 'center' },
       });
+      doc.image(assets.signature, JUSTIFY_END + x - 175, ALIGN_END + y - 20, {
+        width: 175,
+      });
       doc.page.margins.bottom = 30;
     };
 
@@ -748,12 +756,13 @@ export class PdfService {
     };
 
     addDivContent(div_1, 0, 0);
-    addDivContent(div_2, -175, 0);
-    addDivContent(div_3, 0, 90);
-    addDivContent(div_4, 0, 150);
-    addDivContent(div_8, 0, 240);
-    addDivContent(div_5, 0, 300);
-    addDivContent(div_6, 0, -50);
+    addDivContent(div_2, -175, 50);
+    addDivContent(div_3, 0, 140); // Adding 50 to 90
+    addDivContent(div_4, 0, 200); // Adding 50 to 150
+    addDivContent(div_5, 0, 350); // Adding 50 to 300
+    addDivContent(div_8, 0, 290); // Adding 50 to 240
+    addDivContent(div_6, 0, -50); // Adding 50 to -50
+    /////
     addDivContent(div_7, 0, 0);
     addDivContent(div_9, 0, 0);
     addDivContent(div_10, paper.margin * 2, paper.margin * 2);
