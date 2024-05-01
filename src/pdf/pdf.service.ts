@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
-import { title } from 'process';
-import { margins } from 'pdfkit/js/page';
 
 @Injectable()
 export class PdfService {
@@ -59,9 +57,13 @@ export class PdfService {
     };
     const doc = new PDFKit(paper);
 
-    const bgImage = 'src/assets/images/pageBg.png';
+    const assets = {
+      bgImage: 'src/assets/images/pageBg.png',
+      logo: 'src/assets/images/logo.png',
+      signature: 'src/assets/images/signature.png',
+    };
 
-    doc.image(bgImage, 0, 0, {
+    doc.image(assets.bgImage, 0, 0, {
       width: doc.page.width,
       height: doc.page.height,
     });
@@ -128,8 +130,11 @@ export class PdfService {
           timeZone: 'Asia/Manila',
         }).format(new Date())}`,
       });
-    };
 
+      doc.image(assets.logo, JUSTIFY_END + x + -175, y + paper.margin - 10, {
+        width: 125,
+      });
+    };
     const div_2 = (x, y) => {
       configureTextContent({
         size: FONT_SIZE.default,
@@ -488,6 +493,9 @@ export class PdfService {
         },
         options: { width: 150, align: 'center' },
       });
+      doc.image(assets.signature, JUSTIFY_END + x - 175, ALIGN_END + y - 20, {
+        width: 175,
+      });
       doc.page.margins.bottom = 30;
     };
 
@@ -590,62 +598,175 @@ export class PdfService {
       })();
     };
 
+    const div_10 = (x, y) => {
+      doc.addPage(paper);
+
+      const listItem = (str, _x, _y) =>
+        configureTextContent({
+          font: FONT_HELVETICA,
+          size: FONT_SIZE.default,
+          position: {
+            x: _x,
+            y: _y,
+          },
+          options: { width: 475, align: 'justify' },
+          text: `•  ${str}`,
+        });
+
+      // Term and Condtion Header
+      configureTextContent({
+        font: FONT_HELVETICA_BOLD,
+        size: FONT_SIZE.default + 3,
+        position: {
+          x: x,
+          y: y,
+        },
+        text: 'Terms and Conditions',
+      });
+
+      configureTextContent({
+        font: FONT_HELVETICA_BOLD,
+        size: FONT_SIZE.default,
+        position: {
+          x: x + 5,
+          y: y + 25,
+        },
+        text: 'I.   Reservation Policies',
+      });
+
+      listItem(
+        'Upon reservation total amount is required for confirmation of booking and the If full payment did not received Z TOURS.PH TRAVEL AND TOURS will not confirmed the reservation on the system.',
+        x + 5,
+        y + 40,
+      );
+
+      configureTextContent({
+        font: FONT_HELVETICA_BOLD,
+        size: FONT_SIZE.default,
+        position: {
+          x: x + 5,
+          y: y + 80,
+        },
+        text: 'II.   Cancellation Policies ',
+      });
+
+      listItem(
+        'Cancellation within 72 hours before your tour is subjected to a full refund.',
+        x + 5,
+        y + 98,
+      );
+
+      listItem(
+        '(Refund process will take 7-10 Business days depending on the bank details policy.)',
+        x + 5,
+        y + 111,
+      );
+
+      listItem(
+        'Cancellation within 48 hours before your tour will incur 50% charge of total bill. ',
+        x + 5,
+        y + 124,
+      );
+
+      listItem(
+        'Cancellation within 24 hours before your tour will be non - refundable. ',
+        x + 5,
+        y + 137,
+      );
+
+      listItem(
+        'For “No Show” guest your booking will be forfeited. ',
+        x + 5,
+        y + 150,
+      );
+
+      listItem(
+        'If you prefer to rebook your trip to another day, you must inform us 12 hours before your tour otherwise you will be tag as NO SHOW GUEST.',
+        x + 5,
+        y + 163,
+      );
+
+      listItem(
+        'If you decide to cancel your tour due to illness, injury or emergency reasons, you must inform us thru Call or message in our contacts +63 966-442-8625/+63-962 078-7353 a night before of your tour. But you must present a prof of hard copy medical certificate in our office and your money will be refunded 100% of the total amount. If you are unable to communicate the cancellation in to the given time frame or failed to provide the medical certificate then the full amount shall be forfeited. ',
+        x + 5,
+        y + 189,
+      );
+
+      listItem(
+        'Cancellation due to weather condition is only basis to advisory of Philippine coastguard. If the tours is cancels due to weather any of the water activities, you have the option to receive a full refund or rebook your tour schedule to later date. Z Tours.ph will not be liable for any other inconvenience caused due to weather cancellations.',
+        x + 5,
+        y + 253,
+      );
+
+      configureTextContent({
+        font: FONT_HELVETICA_BOLD,
+        size: FONT_SIZE.default,
+        position: {
+          x: x + 5,
+          y: y + 315,
+        },
+        text: 'III.   Important Reminders',
+      });
+
+      listItem(
+        'Most of the destination is part of Marine Protected Area and there are rules and regulations that need to be follow',
+        x + 5,
+        y + 332,
+      );
+
+      listItem(
+        'Guest should always follow rules and regulations during activities the company has nothing to do for any violations made by guest in government laws.',
+        x + 5,
+        y + 358,
+      );
+
+      listItem(
+        'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to modify the route or cancel the tour.',
+        x + 5,
+        y + 384,
+      );
+
+      listItem(
+        'Baggage and personal belongings of the tour participant is his/ her responsibility. The company shall not be liable for the loss / damage of the same.  ',
+        x + 5,
+        y + 410,
+      );
+
+      listItem(
+        'The company shall not be responsible and/or liable for any damage/ loss caused to the tour participant due to reasons beyond the control of the company.',
+        x + 5,
+        y + 436,
+      );
+
+      listItem(
+        'Smoking and drinking alcohol is strictly prohibited during tours there will be some designated areas only for smoking.',
+        x + 5,
+        y + 462,
+      );
+
+      listItem(
+        'If the tour participant misbehaves causing inconvenience or annoyance to any tour participant or causes damage to the property of the company, he/ she will be asked to leave the tour immediately. The Tour Managers have been authorized to do so. There will not be any compensation, whatsoever, in such cases.',
+        x + 5,
+        y + 488,
+      );
+    };
+
     const addDivContent = function (func, x, y) {
       return func(x, y);
     };
 
     addDivContent(div_1, 0, 0);
-    addDivContent(div_2, -175, 0);
-    addDivContent(div_3, 0, 90);
-    addDivContent(div_4, 0, 150);
-    addDivContent(div_8, 0, 240);
-    addDivContent(div_5, 0, 300);
-    addDivContent(div_6, 0, -50);
+    addDivContent(div_2, -175, 50);
+    addDivContent(div_3, 0, 140); // Adding 50 to 90
+    addDivContent(div_4, 0, 200); // Adding 50 to 150
+    addDivContent(div_5, 0, 350); // Adding 50 to 300
+    addDivContent(div_8, 0, 290); // Adding 50 to 240
+    addDivContent(div_6, 0, -50); // Adding 50 to -50
+    /////
     addDivContent(div_7, 0, 0);
     addDivContent(div_9, 0, 0);
-
+    addDivContent(div_10, paper.margin * 2, paper.margin * 2);
     doc.end();
-
-    return doc;
-  }
-
-  async generateBookingItinerary(
-    content: any,
-    id?: string,
-    bucketname?: string | undefined,
-  ): Promise<any> {
-    const doc = this.templateBookingItinerary(content, id);
-    const buffer = await this.streamToBuffer(doc);
-
-    return {
-      bucketname: bucketname || process.env.AWS_S3_BUCKET,
-      filename: `itinerary_${id}_${new Date()
-        .toLocaleDateString()
-        .replaceAll('/', '')}`, //What if the user has booked multiple times?
-      buffer: buffer,
-      mimetype: 'application/pdf',
-    };
-  }
-
-  private templateBookingItinerary(content: string, ...rest: any) {
-    const doc = new PDFKit({ size: 'A7' });
-
-    // Style PDF File
-    doc.fontSize(10).text(content, 5, 5, { align: 'left' });
-    doc.fontSize(10).text(rest?.id, 20, 20, { align: 'left' });
-    doc.end();
-
-    return doc;
-  }
-
-  private templateCheckoutReciept(content: string) {
-    const doc = new PDFKit({ size: 'A7' });
-
-    // Style PDF File
-    doc.fontSize(23).text(content, 5, 5, { align: 'left' });
-
-    doc.end();
-
     return doc;
   }
 
