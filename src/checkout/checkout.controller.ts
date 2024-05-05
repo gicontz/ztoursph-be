@@ -189,6 +189,7 @@ export class CheckoutController {
     }
     // Upon user verification, create booking
     const { packages } = data;
+
     const totalAmts = await this.calculateTotalAmts({
       booking: packages.map((p) => ({
         id: p.id,

@@ -30,7 +30,6 @@ export class BookingsController {
     try {
       const bookingInfo = await this.bookingService.findOne(bookingId);
       const user = await this.userService.findOne({ id: bookingInfo.user_id });
-
       const itineraryUri = await this.s3Service.getPDF(bookingInfo.itinerary);
 
       return {

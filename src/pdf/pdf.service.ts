@@ -635,7 +635,7 @@ export class PdfService {
       });
 
       listItem(
-        'Upon reservation total amount is required for confirmation of booking and the If full payment did not received Z TOURS.PH TRAVEL AND TOURS will not confirmed the reservation on the system.',
+        'Upon reservation total amount is required for confirmation of booking. If full payment did not received Z TOURS.PH TRAVEL AND TOURS will not confirmed the reservation on the system.',
         x + 5,
         y + 40,
       );

@@ -10,13 +10,14 @@ export class TPDFItenerary {
   readonly mobileNumber1: string;
   readonly mobileNumber2: string;
   readonly booking_date: string;
-  readonly guests?: { [tourId: string | number]: TGuest[] };
+  readonly guests?: { [key: string]: TGuest[] };
   readonly booked_tours?: {
     id: string | number;
     category: 'tours' | 'packages';
     pax: number;
     date: string;
     pickup_time: string;
+    participants: string[];
     title: string;
     subtotal: string;
   }[];

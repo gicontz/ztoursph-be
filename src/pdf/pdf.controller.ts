@@ -7,6 +7,7 @@ import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
+import { example1 } from 'src/examples/pdf';
 
 @ApiTags('Itinerary')
 @Controller('itinerary')
@@ -24,50 +25,7 @@ export class PdfController {
     required: true,
     type: TPDFItenerary,
     examples: {
-      example1: {
-        value: {
-          content: {
-            referenceNumber: 'ABC123',
-            firstName: 'John',
-            middleInitial: 'D',
-            lastName: 'Doe',
-            suffix: 'Jr',
-            birthday: '1990-01-01',
-            nationality: 'US',
-            email: 'john.doe@example.com',
-            mobileNumber1: '1234567890',
-            mobileNumber2: '0987654321',
-            booking_date: '2024-04-17',
-            guests: {
-              1: [
-                { id: '1', name: 'Guest 1', age: 25, nationality: 'US' },
-                { id: '2', name: 'Guest 2', age: 30, nationality: 'UK' },
-              ],
-              7: [{ id: '3', name: 'Guest 3', age: 40, nationality: 'CA' }],
-            },
-            booked_tours: [
-              {
-                id: 1,
-                category: 'tours',
-                pax: 2,
-                date: '2024-04-20',
-                pickup_time: '10:00 AM',
-                title: 'City Tour',
-                subtotal: '$100',
-              },
-              {
-                id: 7,
-                category: 'tours',
-                pax: 1,
-                date: '2024-04-22',
-                pickup_time: '9:00 AM',
-                title: 'Adventure Package',
-                subtotal: '$200',
-              },
-            ],
-          },
-        },
-      },
+      example1,
     },
   })
   @ApiQuery({ name: 'upload', type: Boolean, required: false })
