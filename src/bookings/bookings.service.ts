@@ -14,6 +14,10 @@ export class BookingsService {
     return this.bookingRepository.findOneBy({ id });
   }
 
+  findAll(userId: string): Promise<BookingModel[]> {
+    return this.bookingRepository.find({ where: { user_id: userId } });
+  }
+
   create(bookingInfo: TBooking): Promise<BookingModel> {
     const info = { ...bookingInfo, packages: '' };
     info.packages = JSON.stringify(bookingInfo.packages);

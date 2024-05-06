@@ -635,7 +635,7 @@ export class PdfService {
       });
 
       listItem(
-        'Upon reservation total amount is required for confirmation of booking. If full payment did not received Z TOURS.PH TRAVEL AND TOURS will not confirmed the reservation on the system.',
+        'Upon reservation total amount should be settled in order to confirm booking. If full payment was not received, Z TOURS.PH TRAVEL AND TOURS will not confirm the reservation on the system.',
         x + 5,
         y + 40,
       );
@@ -651,7 +651,7 @@ export class PdfService {
       });
 
       listItem(
-        'Cancellation within 72 hours before your tour is subjected to a full refund.',
+        'Cancellation within 72 hours before your tour is subjected to a full refund. You can cancel your booking by sending us an email, call or message in our contact numbers or WhatsApp',
         x + 5,
         y + 98,
       );
@@ -669,31 +669,31 @@ export class PdfService {
       );
 
       listItem(
-        'Cancellation within 24 hours before your tour will be non - refundable. ',
+        'Cancellation within 24 hours before your tour will be non-refundable. ',
         x + 5,
         y + 137,
       );
 
       listItem(
-        'For “No Show” guest your booking will be forfeited. ',
+        'For “No Show” guest/s, the booking will be forfeited. ',
         x + 5,
         y + 150,
       );
 
       listItem(
-        'If you prefer to rebook your trip to another day, you must inform us 12 hours before your tour otherwise you will be tag as NO SHOW GUEST.',
+        'If you prefer to rebook your trip to another day, you must inform us 12 hours prior your planned date otherwise you will be tagged as NO SHOW GUEST.',
         x + 5,
         y + 163,
       );
 
       listItem(
-        'If you decide to cancel your tour due to illness, injury or emergency reasons, you must inform us thru Call or message in our contacts +63 966-442-8625/+63-962 078-7353 a night before of your tour. But you must present a prof of hard copy medical certificate in our office and your money will be refunded 100% of the total amount. If you are unable to communicate the cancellation in to the given time frame or failed to provide the medical certificate then the full amount shall be forfeited. ',
+        'If you decided to cancel your tour due to illness, injury or emergency reasons, you must inform us thru Call or message in our contacts +63 966-442-8625/+63-962 078-7353 a night before of your tour. But you must present a prof of hard copy medical certificate in our office and your payment will be refunded fully, 100% of the total amount. If you are unable to inform us ahead of time or failed to provide the medical certificate then the full amount shall be forfeited. ',
         x + 5,
         y + 189,
       );
 
       listItem(
-        'Cancellation due to weather condition is only basis to advisory of Philippine coastguard. If the tours is cancels due to weather any of the water activities, you have the option to receive a full refund or rebook your tour schedule to later date. Z Tours.ph will not be liable for any other inconvenience caused due to weather cancellations.',
+        'Cancellation due to weather condition is only basis to advisory of Philippine coastguard. If the tours was cancelled due to weather or any of the water activities, you have the option to receive a full refund or rebook your tour schedule to later date. Z Tours.ph will not be liable for any other inconvenience caused due to weather cancellations.',
         x + 5,
         y + 253,
       );
@@ -709,31 +709,31 @@ export class PdfService {
       });
 
       listItem(
-        'Most of the destination is part of Marine Protected Area and there are rules and regulations that need to be follow',
+        'Most of the destinations are part of Marine Protected Area and there are rules and regulations that need to be follow',
         x + 5,
         y + 332,
       );
 
       listItem(
-        'Guest should always follow rules and regulations during activities the company has nothing to do for any violations made by guest in government laws.',
+        'Guest should always follow rules and regulations during activities, the company has nothing to do for any violations made by guest in accordance to local laws and regulations.',
         x + 5,
         y + 358,
       );
 
       listItem(
-        'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to modify the route or cancel the tour.',
+        'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to amend the route or cancel the tour.',
         x + 5,
         y + 384,
       );
 
       listItem(
-        'Baggage and personal belongings of the tour participant is his/ her responsibility. The company shall not be liable for the loss / damage of the same.  ',
+        'Baggage and personal belongings of the tour participants are his/her responsibility. The company shall not be liable for the loss/damage of the same.  ',
         x + 5,
         y + 410,
       );
 
       listItem(
-        'The company shall not be responsible and/or liable for any damage/ loss caused to the tour participant due to reasons beyond the control of the company.',
+        'The company shall not be responsible and/or liable for any damage/loss caused to the tour participant due to reasons beyond the control of the company.',
         x + 5,
         y + 436,
       );
@@ -745,7 +745,7 @@ export class PdfService {
       );
 
       listItem(
-        'If the tour participant misbehaves causing inconvenience or annoyance to any tour participant or causes damage to the property of the company, he/ she will be asked to leave the tour immediately. The Tour Managers have been authorized to do so. There will not be any compensation, whatsoever, in such cases.',
+        'If the tour participant misbehaves causing inconvenience or annoyance to any tour participant or causes damage to the property of the company, he/she will be asked to leave the tour immediately. The Tour Managers have been authorized to do so. There will not be any compensation, whatsoever, in such cases.',
         x + 5,
         y + 488,
       );

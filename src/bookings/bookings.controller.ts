@@ -1,6 +1,14 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Body, Controller, HttpStatus, Inject, Post } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { BookingsService } from './bookings.service';
 import { S3BucketService } from 'src/middlewares/s3.service';
@@ -41,6 +49,28 @@ export class BookingsController {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: 'Booking Information not be able to retrieved',
+      };
+    }
+  }
+
+  @Get('/')
+  @ApiQuery({ name: 'userEmail', required: true })
+  async getBookings(
+    @Query('userEmail') userEmail: string,
+  ): Promise<TResponseData> {
+    try {
+      const user = await this.userService.findOne({ email: userEmail });
+      const bookings = await this.bookingService.findAll(user.id);
+
+      return {
+        status: HttpStatus.OK,
+        message: 'Bookings Information has been retrieved',
+        data: bookings,
+      };
+    } catch (e) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Bookings Information not be able to retrieved',
       };
     }
   }
