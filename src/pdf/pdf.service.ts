@@ -35,6 +35,8 @@ export class PdfService {
       mobileNumber2,
       booking_date,
       booked_tours,
+      grandTotal,
+      fees,
     } = content;
 
     const allGuests = Object.values(guests).flat();
@@ -423,10 +425,15 @@ export class PdfService {
             date: '',
             title: '',
             time: '',
+            pax: 'Convenience Fee',
+            subtotal: fees.toString(),
+          },
+          {
+            date: '',
+            title: '',
+            time: '',
             pax: 'Grand Total',
-            subtotal: booked_tours
-              .reduce((acc, cur) => acc + Number(cur.subtotal), 0)
-              .toString(),
+            subtotal: grandTotal.toString(),
           },
         ],
       };
@@ -635,7 +642,7 @@ export class PdfService {
       });
 
       listItem(
-        'Upon reservation total amount should be settled in order to confirm booking. If full payment was not received, Z TOURS.PH TRAVEL AND TOURS will not confirm the reservation on the system.',
+        'Upon reservation total amount should be settled in order to confirm booking. If full payment was not received, Z TOURS.PH TRAVEL AND TOURS will not confirm the reservation in the system.',
         x + 5,
         y + 40,
       );
@@ -651,51 +658,57 @@ export class PdfService {
       });
 
       listItem(
-        'Cancellation within 72 hours before your tour is subjected to a full refund. You can cancel your booking by sending us an email, call or message in our contact numbers or WhatsApp',
+        'Cancellation within 72 hours before your tour is subjected to a full refund.',
         x + 5,
         y + 98,
       );
 
       listItem(
-        '(Refund process will take 7-10 Business days depending on the bank details policy.)',
+        'You can cancel your booking by sending us an email, call or message us in our contact numbers',
         x + 5,
         y + 111,
       );
 
       listItem(
-        'Cancellation within 48 hours before your tour will incur 50% charge of total bill. ',
+        'Refund process will take 10 to 30 Calendar days depending on the bank details policy.',
         x + 5,
         y + 124,
       );
 
       listItem(
-        'Cancellation within 24 hours before your tour will be non-refundable. ',
+        'Cancellation within 48 hours before your tour will incur 50% charge of total bill. ',
         x + 5,
         y + 137,
       );
 
       listItem(
-        'For “No Show” guest/s, the booking will be forfeited. ',
+        'Cancellation within 24 hours before your tour will be non-refundable. ',
         x + 5,
         y + 150,
       );
 
       listItem(
-        'If you prefer to rebook your trip to another day, you must inform us 12 hours prior your planned date otherwise you will be tagged as NO SHOW GUEST.',
+        'For “No Show” guest/s, the booking will be forfeited. ',
         x + 5,
         y + 163,
       );
 
       listItem(
+        'If you prefer to rebook your trip to another day, you must inform us 12 hours prior your planned date otherwise you will be tagged as NO SHOW GUEST.',
+        x + 5,
+        y + 176,
+      );
+
+      listItem(
         'If you decided to cancel your tour due to illness, injury or emergency reasons, you must inform us thru Call or message in our contacts +63 966-442-8625/+63-962 078-7353 a night before of your tour. But you must present a prof of hard copy medical certificate in our office and your payment will be refunded fully, 100% of the total amount. If you are unable to inform us ahead of time or failed to provide the medical certificate then the full amount shall be forfeited. ',
         x + 5,
-        y + 189,
+        y + 198,
       );
 
       listItem(
         'Cancellation due to weather condition is only basis to advisory of Philippine coastguard. If the tours was cancelled due to weather or any of the water activities, you have the option to receive a full refund or rebook your tour schedule to later date. Z Tours.ph will not be liable for any other inconvenience caused due to weather cancellations.',
         x + 5,
-        y + 253,
+        y + 258,
       );
 
       configureTextContent({
@@ -715,19 +728,19 @@ export class PdfService {
       );
 
       listItem(
-        'Guest should always follow rules and regulations during activities, the company has nothing to do for any violations made by guest in accordance to local laws and regulations.',
+        'Guest/s should always abide to the rules and regulations during activities; thus, the company was not liable for violations committed by guest/s in accordance to local laws and regulations.',
         x + 5,
         y + 358,
       );
 
       listItem(
-        'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to amend the route or cancel the tour.',
+        'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to amend the route or postpone the tour.',
         x + 5,
         y + 384,
       );
 
       listItem(
-        'Baggage and personal belongings of the tour participants are his/her responsibility. The company shall not be liable for the loss/damage of the same.  ',
+        'Baggage and personal belongings of tour participants are his/her own responsibility. The company shall not be liable for the loss/damage of the same.',
         x + 5,
         y + 410,
       );

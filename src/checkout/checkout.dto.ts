@@ -26,6 +26,13 @@ export class TPreCheckout {
   readonly booking: Array<TBookedTrip>;
 }
 
+export type TCalculation = {
+  subTotals: Array<{ id: string | number; pax: number; subTotal: number }>;
+  totalAmt: number;
+  processingFee: number;
+  totalAmtTbp: number;
+};
+
 export const PAYMENT_DTO_EXAMPLE = {
   paymentData: {
     userId: '123',

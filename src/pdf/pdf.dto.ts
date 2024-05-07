@@ -21,6 +21,8 @@ export class TPDFItenerary {
     title: string;
     subtotal: string;
   }[];
+  readonly fees: number;
+  readonly grandTotal: number;
 }
 
 export type TGuest = {

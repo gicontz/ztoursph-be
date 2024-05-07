@@ -8,9 +8,11 @@ import { TourModel } from 'src/tours/tours.model';
 import { PackageModel } from 'src/packages/packages.model';
 import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
+import { BookingsService } from 'src/bookings/bookings.service';
+import { BookingModel } from 'src/bookings/bookings.model';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TourModel, PackageModel])],
+  imports: [TypeOrmModule.forFeature([TourModel, PackageModel, BookingModel])],
   controllers: [PdfController],
   exports: [PdfService],
   providers: [
@@ -19,6 +21,7 @@ import { PackagesService } from 'src/packages/packages.service';
     S3BucketService,
     ToursService,
     PackagesService,
+    BookingsService,
   ],
 })
 export class PdfModule {}

@@ -18,8 +18,6 @@ import {
   TPaymentStatus,
 } from 'src/third-party/maya-sdk/maya.dto';
 import { Response } from 'express';
-import { ToursService } from 'src/tours/tours.service';
-import { PackagesService } from 'src/packages/packages.service';
 import config from '../config/config';
 import { format } from 'date-fns';
 import { uuidTo8Bits } from 'src/utils/hash';
@@ -35,8 +33,6 @@ export class CheckoutController {
     private readonly userService: UsersService,
     private readonly mayaService: MayaService,
     private readonly bookingService: BookingsService,
-    private readonly toursService: ToursService,
-    private readonly packageService: PackagesService,
     private readonly checkoutService: CheckoutService,
     private readonly s3Service: S3BucketService,
     private readonly s3ServiceMiddleware: S3Service,
@@ -44,97 +40,6 @@ export class CheckoutController {
   ) {}
 
   private cnfg = config();
-
-  async calculateTotalAmts(data: TPreCheckout): Promise<any> {
-    const { booking } = data;
-    const ids = booking.map((b) => b.id);
-
-    const tours = await this.toursService.findByIds(ids as number[]);
-    const packages = await this.packageService.findByIds(ids as string[]);
-    const trips: Array<{
-      id: string | number;
-      price: number;
-      per_pax_price: number;
-      min_pax: number;
-      discount: number;
-      pax: number;
-      ages: number[];
-    }> = [
-      ...tours.map(({ id, price, discount, min_pax, per_pax_price }) => ({
-        id,
-        price,
-        min_pax,
-        per_pax_price,
-        discount,
-        pax: booking.find((b) => b.id === id).pax,
-        ages: booking.find((b) => b.id === id).ages,
-      })),
-      ...packages.map(({ id, price, discount, min_pax, per_pax_price }) => ({
-        id,
-        price,
-        min_pax,
-        per_pax_price,
-        discount,
-        pax: booking.find((b) => b.id === id).pax,
-        ages: booking.find((b) => b.id === id).ages,
-      })),
-    ];
-
-    const getSubTotal = (prices: {
-      price: number;
-      pax: number;
-      discount: number;
-      min_pax: number;
-      per_pax_price: number;
-      ages: number[];
-    }) => {
-      const { price, pax, discount, min_pax, per_pax_price, ages } = prices;
-      const discountedPrice = price - price * (discount / 100);
-      const floatPax = ages.reduce((acc, curr) => {
-        if (curr <= 3)
-          return acc - (1 - this.cnfg.payments.discounts.kidsUnderFour / 100);
-        if (curr < 7)
-          return acc - (1 - this.cnfg.payments.discounts.kidsUnderSeven / 100);
-        return acc;
-      }, pax);
-      if (min_pax > 1) {
-        const additionalPax = floatPax - min_pax;
-        return discountedPrice + additionalPax * per_pax_price;
-      }
-      return discountedPrice * floatPax;
-    };
-
-    const subTotals = trips.map((t) => {
-      const { id, price, min_pax, per_pax_price, discount, ages, pax } = t;
-      return {
-        id,
-        pax,
-        subTotal: getSubTotal({
-          price,
-          pax,
-          discount,
-          min_pax,
-          per_pax_price,
-          ages,
-        }),
-      };
-    });
-
-    const totalAmt = subTotals.reduce((acc, curr) => acc + curr.subTotal, 0);
-
-    const processingFee =
-      totalAmt * (this.cnfg.payments.processingFeeRates / 100) +
-      this.cnfg.payments.processingFee;
-
-    const totalAmtTbp = totalAmt + processingFee;
-
-    return {
-      subTotals,
-      totalAmt,
-      processingFee,
-      totalAmtTbp,
-    };
-  }
 
   @Post('/trips')
   @ApiBody({
@@ -190,13 +95,20 @@ export class CheckoutController {
     // Upon user verification, create booking
     const { packages } = data;
 
-    const totalAmts = await this.calculateTotalAmts({
+    const totalAmts = await this.bookingService.calculateTotalAmts({
       booking: packages.map((p) => ({
         id: p.id,
         pax: p.pax,
         ages: p.participants.map((a) => a.age),
       })),
     });
+
+    const calculatedPackages = packages.map((p) => ({
+      ...p,
+      subtotal: totalAmts.subTotals
+        .find(({ id }) => id === p.id)
+        .subTotal.toString(),
+    }));
 
     const bookingInfo = {
       packages: packages as any,
@@ -230,8 +142,10 @@ export class CheckoutController {
       mobileNumber2: userInfo.mobile_number2,
       booking_date: new Date().toISOString(),
       guests: guestsPerTour,
-      booked_tours: packages as any,
+      booked_tours: calculatedPackages as any,
       nationality: userInfo.nationality,
+      grandTotal: totalAmts.totalAmtTbp,
+      fees: totalAmts.processingFee,
     };
 
     // Return as object and generate the buffer
@@ -503,7 +417,7 @@ export class CheckoutController {
       };
     }
 
-    const totals = await this.calculateTotalAmts(data);
+    const totals = await this.bookingService.calculateTotalAmts(data);
 
     return {
       status: HttpStatus.OK,

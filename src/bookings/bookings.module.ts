@@ -9,6 +9,10 @@ import { BookingsController } from './bookings.controller';
 import { PdfService } from 'src/pdf/pdf.service';
 import { UsersService } from 'src/users/users.service';
 import { UserModel } from 'src/users/users.model';
+import { TourModel } from 'src/tours/tours.model';
+import { PackageModel } from 'src/packages/packages.model';
+import { ToursService } from 'src/tours/tours.service';
+import { PackagesService } from 'src/packages/packages.service';
 
 @Module({
   providers: [
@@ -17,11 +21,15 @@ import { UserModel } from 'src/users/users.model';
     S3BucketService,
     PdfService,
     UsersService,
+    ToursService,
+    PackagesService,
   ],
   imports: [
     CacheModule.register(),
     TypeOrmModule.forFeature([BookingModel]),
     TypeOrmModule.forFeature([UserModel]),
+    TypeOrmModule.forFeature([TourModel]),
+    TypeOrmModule.forFeature([PackageModel]),
   ],
   exports: [BookingsService],
   controllers: [BookingsController],
