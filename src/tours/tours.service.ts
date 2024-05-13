@@ -22,7 +22,7 @@ export class ToursService {
     if (pageNumber && pageSize) {
       const [data, total] = await this.tourRepository
         .createQueryBuilder()
-        .orderBy('tour_slug', 'ASC')
+        .orderBy('view_priority', 'ASC')
         .skip((pageNumber - 1) * pageSize)
         .take(pageSize)
         .getManyAndCount();

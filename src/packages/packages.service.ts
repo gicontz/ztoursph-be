@@ -22,7 +22,7 @@ export class PackagesService {
     if (pageNumber && pageSize) {
       const [data, total] = await this.packageRepository
         .createQueryBuilder()
-        .orderBy('package_slug', 'ASC')
+        .orderBy('view_priority', 'ASC')
         .skip((pageNumber - 1) * pageSize)
         .take(pageSize)
         .getManyAndCount();

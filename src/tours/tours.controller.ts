@@ -68,6 +68,7 @@ export class ToursController {
           price,
           discount,
           pickup_time,
+          location_caption,
         } = data;
         const tour = {
           id,
@@ -80,6 +81,7 @@ export class ToursController {
           pickup_time,
           tour_banner_image: '',
           gallery: [],
+          location_caption,
         };
         if (hasGallery)
           tour.gallery = await Promise.all(

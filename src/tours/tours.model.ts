@@ -4,6 +4,10 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class TourModel {
   @PrimaryGeneratedColumn('increment')
   id: number;
+  @Column({ type: 'integer', nullable: false })
+  view_priority: number;
+  @Column({ type: 'text', nullable: false })
+  location_caption: string;
   @Column({ type: 'text', nullable: false, unique: true })
   tour_slug: string;
   @Column({ type: 'text', nullable: false })

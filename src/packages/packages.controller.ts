@@ -59,6 +59,7 @@ export class PackagesController {
           package_details,
           price,
           discount,
+          location_caption,
         } = data;
         const packageInfo = {
           id,
@@ -71,6 +72,7 @@ export class PackagesController {
           discount,
           package_banner_image: '',
           gallery: [],
+          location_caption,
         };
         if (hasGallery)
           packageInfo.gallery = await Promise.all(
