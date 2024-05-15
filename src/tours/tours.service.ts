@@ -54,6 +54,7 @@ export class ToursService {
   }
 
   findByIds(ids: number[]): Promise<TourModel[]> {
+    if (ids.length === 0) return Promise.resolve([]);
     return this.tourRepository
       .createQueryBuilder()
       .where('id IN (:...ids)', { ids })

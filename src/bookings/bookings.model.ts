@@ -7,6 +7,7 @@ export enum PaymentStatus {
 }
 
 export type TParticipant = {
+  id: string;
   name: string;
   age: number;
   nationality: string;

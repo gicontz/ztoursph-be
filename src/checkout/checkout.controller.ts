@@ -122,7 +122,7 @@ export class CheckoutController {
       return {
         ...acc,
         [curr.id]: curr.participants.map((p) => ({
-          id: uuidTo8Bits(),
+          id: p.id,
           name: p.name,
           age: p.age,
           nationality: p.nationality,

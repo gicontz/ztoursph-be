@@ -49,6 +49,7 @@ export class PdfController {
 
     const toursInfo = await this.toursService.findByIds(tourIds);
     const packagesInfo = await this.packageService.findByIds(packageIds);
+
     const allTours = [...toursInfo, ...packagesInfo];
 
     const totalAmts = await this.bookingService.calculateTotalAmts({

@@ -60,6 +60,9 @@ export class PackagesController {
           price,
           discount,
           location_caption,
+          per_pax_price,
+          min_pax,
+          view_priority,
         } = data;
         const packageInfo = {
           id,
@@ -73,6 +76,9 @@ export class PackagesController {
           package_banner_image: '',
           gallery: [],
           location_caption,
+          per_pax_price,
+          min_pax,
+          view_priority,
         };
         if (hasGallery)
           packageInfo.gallery = await Promise.all(
@@ -132,6 +138,9 @@ export class PackagesController {
       package_details,
       price,
       discount,
+      per_pax_price,
+      min_pax,
+      view_priority,
     } = packageInfo;
     const galleryImageIds = [...Array(9).keys()].map((i) => `image${i + 1}`);
     const imaged_package = {
@@ -142,6 +151,9 @@ export class PackagesController {
       package_details,
       price,
       discount,
+      per_pax_price,
+      min_pax,
+      view_priority,
       package_banner_image: await this.s3Service.getImage(package_banner_image),
       gallery: await Promise.all(
         galleryImageIds.map(async (gId) => {
