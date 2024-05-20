@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MailOptions } from './smtp.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const nodemailer = require('nodemailer');
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class SmtpService {

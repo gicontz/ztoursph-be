@@ -72,9 +72,9 @@ export class PdfService {
 
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
-    const FONT_HELVETICA = 'Helvetica';
-    const FONT_COURIER = 'Courier';
-    const FONT_HELVETICA_BOLD = 'Helvetica-Bold';
+    const FONT_POPPINS = 'src/assets/fonts/Poppins-Regular.ttf';
+    const FONT_JOSEFINSANS = 'src/assets/fonts/JosefinSans.ttf';
+    const FONT_POPPINS_BOLD = 'src/assets/fonts/Poppins-Bold.ttf';
     const JUSTIFY_END = doc.page.width - paper.margin;
     const ALIGN_END = doc.page.height - paper.margin;
     const FONT_SIZE = { small: 7, default: 10, medium: 20, large: 40 };
@@ -89,13 +89,13 @@ export class PdfService {
 
     const configureTextContent = ({
       text,
-      font = FONT_HELVETICA,
+      font = FONT_POPPINS,
       size = fontSize.default,
       position,
       options = {} as PDFKit.Mixins.TextOptions,
     }: ConfigureTextContentProps) => {
       return doc
-        .font(font || FONT_HELVETICA)
+        .font(font || FONT_POPPINS)
         .fontSize(size || FONT_SIZE.default)
         .text(text.toString(), position?.x, position?.y, {
           width: options?.width,
@@ -106,10 +106,10 @@ export class PdfService {
 
     const div_1 = (x, y) => {
       configureTextContent({
-        font: FONT_COURIER,
+        font: FONT_JOSEFINSANS,
         size: FONT_SIZE.large,
         position: {
-          x: x + paper.margin,
+          x: x + 90 + paper.margin,
           y: y + paper.margin,
         },
         text: 'Itinerary',
@@ -118,22 +118,22 @@ export class PdfService {
       configureTextContent({
         size: FONT_SIZE.default,
         position: {
-          x: x + paper.margin,
-          y: y + paper.margin + 32,
+          x: x + 90 + paper.margin,
+          y: y + paper.margin + 36,
         },
         text: `Booking Reference Number: ${referenceNumber}`,
       });
 
       configureTextContent({
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin, y: y + paper.margin + 45 },
+        position: { x: x + 90 + paper.margin, y: y + paper.margin + 49 },
         text: `Date: ${new Intl.DateTimeFormat('en-US', {
           dateStyle: 'medium',
           timeZone: 'Asia/Manila',
         }).format(new Date())}`,
       });
 
-      doc.image(assets.logo, JUSTIFY_END + x + -175, y + paper.margin - 10, {
+      doc.image(assets.logo, 0, y + paper.margin - 10, {
         width: 125,
       });
     };
@@ -201,61 +201,61 @@ export class PdfService {
       // Lead Guest Value
       configureTextContent({
         text: leadGuest,
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 90, y: y },
+        position: { x: x + paper.margin + 100, y: y },
         options: { width: 200 },
       });
 
       // Quantity Value
       configureTextContent({
         text: masterList.length,
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 45, y: y + 13 },
+        position: { x: x + paper.margin + 55, y: y + 13 },
         options: { width: 80, align: 'left' },
       });
 
       // Adult Value
       configureTextContent({
         text: adults.toString(),
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 30, y: y + 13 * 2 },
+        position: { x: x + paper.margin + 40, y: y + 13 * 2 },
         options: { width: 80 },
       });
 
       // Minor/Kid Value
       configureTextContent({
         text: kids.toString(),
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 30, y: y + 13 * 3 },
+        position: { x: x + paper.margin + 40, y: y + 13 * 3 },
         options: { width: 80 },
       });
 
       // Nationality Value
       configureTextContent({
         text: nationality,
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 55, y: y + 13 * 4 },
+        position: { x: x + paper.margin + 65, y: y + 13 * 4 },
         options: { width: 200 },
       });
 
       // Booking Date Value
       configureTextContent({
         text: format(new Date(booking_date), 'MMM dd, yyyy'),
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: JUSTIFY_END + x - 160 + 55, y: y },
+        position: { x: JUSTIFY_END + x - 150 + 55, y: y },
         options: { width: 80 },
       });
 
       // Email Value
       configureTextContent({
         text: email || 'N/A',
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin + 35, y: y + 13 * 5 },
         options: { width: 150 },
@@ -264,24 +264,24 @@ export class PdfService {
       // Contact Number Value
       configureTextContent({
         text: mobileNumber1,
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 90, y: y + 13 * 6 },
-        options: { width: 80 },
+        position: { x: x + paper.margin + 100, y: y + 13 * 6 },
+        options: { width: 100 },
       });
       // Contact Number Value
       configureTextContent({
         text: mobileNumber2,
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
-        position: { x: x + paper.margin + 90, y: y + 13 * 7 },
-        options: { width: 80 },
+        position: { x: x + paper.margin + 100, y: y + 13 * 7 },
+        options: { width: 100 },
       });
 
       // // Departure Date Value
       // configureTextContent({
       //   text: eta,
-      //   font: FONT_HELVETICA,
+      //   font: FONT_POPPINS,
       //   size: fontSize.medium,
       //   position: { x: JUSTIFY_END + x - 30, y: y + 10 },
       //   options: { width: 80 },
@@ -290,7 +290,7 @@ export class PdfService {
       // // ETA Value
       // configureTextContent({
       //   text: etd,
-      //   font: FONT_HELVETICA,
+      //   font: FONT_POPPINS,
       //   size: fontSize.medium,
       //   position: { x: JUSTIFY_END + x - 30, y: y + 5 },
       //   options: { width: 80 },
@@ -299,7 +299,7 @@ export class PdfService {
       //Boilerplates
       configureTextContent({
         text: 'Lead Guest Name:',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y },
         options: { width: 100 },
@@ -307,7 +307,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Quantity:',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 },
         options: { width: 80 },
@@ -315,7 +315,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Adult:',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 2 },
         options: { width: 80 },
@@ -323,7 +323,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Kids: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 3 },
         options: { width: 80 },
@@ -331,7 +331,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Nationality: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 4 },
         options: { width: 80 },
@@ -339,7 +339,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Email: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 5 },
         options: { width: 80 },
@@ -347,7 +347,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Mobile Number 1: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 6 },
         options: { width: 100 },
@@ -355,7 +355,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Mobile Number 2: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: y + 13 * 7 },
         options: { width: 100 },
@@ -363,7 +363,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Booking Date: ',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: JUSTIFY_END + x - 175, y: y },
         options: { width: 80 },
@@ -371,7 +371,7 @@ export class PdfService {
 
       // configureTextContent({
       //   text: 'ETA: ',
-      //   font: FONT_HELVETICA_BOLD,
+      //   font: FONT_POPPINS_BOLD,
       //   size: fontSize.medium,
       //   position: { x: JUSTIFY_END + x - 40, y: y + 5 },
       //   options: { width: 80 },
@@ -379,7 +379,7 @@ export class PdfService {
 
       // configureTextContent({
       //   text: 'ETD: ',
-      //   font: FONT_HELVETICA_BOLD,
+      //   font: FONT_POPPINS_BOLD,
       //   size: fontSize.medium,
       //   position: { x: JUSTIFY_END + x - 40, y: y + 10 },
       //   options: { width: 80 },
@@ -454,7 +454,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Term and Conditions:',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: ALIGN_END + y },
         options: { width: 150, align: 'left' },
@@ -462,7 +462,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Confirmation is due 5 days from the invoice date',
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
         position: { x: x + paper.margin, y: ALIGN_END + y + 13 },
         options: { width: 180, align: 'left' },
@@ -470,7 +470,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Prepared by :',
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
         position: {
           x: JUSTIFY_END + x - 175,
@@ -481,7 +481,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Jeo Invento',
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: {
           x: JUSTIFY_END + x - 175,
@@ -492,7 +492,7 @@ export class PdfService {
 
       configureTextContent({
         text: 'Operation Manager',
-        font: FONT_HELVETICA,
+        font: FONT_POPPINS,
         size: FONT_SIZE.default,
         position: {
           x: JUSTIFY_END + x - 175,
@@ -590,7 +590,7 @@ export class PdfService {
           prepareHeader: () =>
             doc.font('Helvetica').fontSize(FONT_SIZE.default),
           prepareRow: () => {
-            return doc.font(FONT_HELVETICA).fontSize(FONT_SIZE.default);
+            return doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default);
           },
           padding: [5, 5, 5, 5],
         });
@@ -610,7 +610,7 @@ export class PdfService {
 
       const listItem = (str, _x, _y) =>
         configureTextContent({
-          font: FONT_HELVETICA,
+          font: FONT_POPPINS,
           size: FONT_SIZE.default,
           position: {
             x: _x,
@@ -622,7 +622,7 @@ export class PdfService {
 
       // Term and Condtion Header
       configureTextContent({
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default + 3,
         position: {
           x: x,
@@ -632,7 +632,7 @@ export class PdfService {
       });
 
       configureTextContent({
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: {
           x: x + 5,
@@ -648,7 +648,7 @@ export class PdfService {
       );
 
       configureTextContent({
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: {
           x: x + 5,
@@ -672,51 +672,51 @@ export class PdfService {
       listItem(
         'Refund process will take 10 to 30 Calendar days depending on the bank details policy.',
         x + 5,
-        y + 124,
+        y + 137,
       );
 
       listItem(
         'Cancellation within 48 hours before your tour will incur 50% charge of total bill. ',
         x + 5,
-        y + 137,
+        y + 150,
       );
 
       listItem(
         'Cancellation within 24 hours before your tour will be non-refundable. ',
         x + 5,
-        y + 150,
+        y + 163,
       );
 
       listItem(
         'For “No Show” guest/s, the booking will be forfeited. ',
         x + 5,
-        y + 163,
+        y + 176,
       );
 
       listItem(
         'If you prefer to rebook your trip to another day, you must inform us 12 hours prior your planned date otherwise you will be tagged as NO SHOW GUEST.',
         x + 5,
-        y + 176,
+        y + 192,
       );
 
       listItem(
         'If you decided to cancel your tour due to illness, injury or emergency reasons, you must inform us thru Call or message in our contacts +63 966-442-8625/+63-962 078-7353 a night before of your tour. But you must present a prof of hard copy medical certificate in our office and your payment will be refunded fully, 100% of the total amount. If you are unable to inform us ahead of time or failed to provide the medical certificate then the full amount shall be forfeited. ',
         x + 5,
-        y + 198,
+        y + 223,
       );
 
       listItem(
         'Cancellation due to weather condition is only basis to advisory of Philippine coastguard. If the tours was cancelled due to weather or any of the water activities, you have the option to receive a full refund or rebook your tour schedule to later date. Z Tours.ph will not be liable for any other inconvenience caused due to weather cancellations.',
         x + 5,
-        y + 258,
+        y + 310,
       );
 
       configureTextContent({
-        font: FONT_HELVETICA_BOLD,
+        font: FONT_POPPINS_BOLD,
         size: FONT_SIZE.default,
         position: {
           x: x + 5,
-          y: y + 315,
+          y: y + 370,
         },
         text: 'III.   Important Reminders',
       });
@@ -724,43 +724,43 @@ export class PdfService {
       listItem(
         'Most of the destinations are part of Marine Protected Area and there are rules and regulations that need to be follow',
         x + 5,
-        y + 332,
+        y + 390,
       );
 
       listItem(
         'Guest/s should always abide to the rules and regulations during activities; thus, the company was not liable for violations committed by guest/s in accordance to local laws and regulations.',
         x + 5,
-        y + 358,
+        y + 425,
       );
 
       listItem(
         'In the event of natural calamities or unavoidable circumstances, the Tour Manger has discretionary powers to amend the route or postpone the tour.',
         x + 5,
-        y + 384,
+        y + 474,
       );
 
       listItem(
         'Baggage and personal belongings of tour participants are his/her own responsibility. The company shall not be liable for the loss/damage of the same.',
         x + 5,
-        y + 410,
+        y + 510,
       );
 
       listItem(
         'The company shall not be responsible and/or liable for any damage/loss caused to the tour participant due to reasons beyond the control of the company.',
         x + 5,
-        y + 436,
+        y + 540,
       );
 
       listItem(
         'Smoking and drinking alcohol is strictly prohibited during tours there will be some designated areas only for smoking.',
         x + 5,
-        y + 462,
+        y + 570,
       );
 
       listItem(
         'If the tour participant misbehaves causing inconvenience or annoyance to any tour participant or causes damage to the property of the company, he/she will be asked to leave the tour immediately. The Tour Managers have been authorized to do so. There will not be any compensation, whatsoever, in such cases.',
         x + 5,
-        y + 488,
+        y + 600,
       );
     };
 

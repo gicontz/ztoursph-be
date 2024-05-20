@@ -10,7 +10,7 @@ export type TAttachment = {
 export type MailOptions = {
   from: string;
   to: string[];
-  html: string;
+  html: string | { path: string };
   subject: string;
   attachments?: TAttachment[];
 };
