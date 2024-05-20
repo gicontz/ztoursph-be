@@ -17,6 +17,7 @@ import { PaymentLogsModel } from './logs.model';
 import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { S3BucketService } from 'src/middlewares/s3.service';
 import { PdfService } from 'src/pdf/pdf.service';
+import { SmtpService } from 'src/third-party/smtp/smtp.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PdfService } from 'src/pdf/pdf.service';
     S3Service,
     S3BucketService,
     PdfService,
+    SmtpService,
   ],
   exports: [CheckoutService, UsersService, BookingsService],
   controllers: [CheckoutController],

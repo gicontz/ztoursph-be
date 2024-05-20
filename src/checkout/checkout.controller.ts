@@ -25,6 +25,7 @@ import { S3BucketService } from 'src/middlewares/s3.service';
 import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { PdfService } from 'src/pdf/pdf.service';
 import { NameSuffix, TPDFItenerary } from 'src/pdf/pdf.dto';
+import { SmtpService } from 'src/third-party/smtp/smtp.service';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -37,6 +38,7 @@ export class CheckoutController {
     private readonly s3Service: S3BucketService,
     private readonly s3ServiceMiddleware: S3Service,
     private readonly generateItinerary: PdfService,
+    private readonly smtService: SmtpService,
   ) {}
 
   private cnfg = config();
@@ -309,11 +311,28 @@ export class CheckoutController {
             success_response: JSON.stringify(paymentResponse),
           });
           // Update Booking Payment Status
-          await this.bookingService.update({
+          const bookingInfo = await this.bookingService.update({
             id: bookingId,
             paymentStatus: PaymentStatus.PAID,
             approval_code: paymentResponse.approvalCode,
           });
+
+          const user = await this.userService.findOne({
+            id: bookingInfo.user_id,
+          });
+
+          const itineraryUri = await this.s3Service.getPDF(
+            bookingInfo.itinerary,
+          );
+
+          // Send Confirmation Email to User
+          await this.smtService.sendEmail({
+            to: [user.email],
+            from: process.env.EMAIL_USERNAME,
+            subject: `[${bookingInfo.reference_id}] - ZTours Philippines Booking Confirmation`,
+            html: `Thank you for booking your trip with us. Your booking reference number is ${bookingInfo.reference_id}. <br /> Click and download the itinerary <a href="${itineraryUri}">here</a>`,
+          });
+
           delete paymentInfo.success_response;
           return response.status(HttpStatus.OK).send({
             status: HttpStatus.OK,
