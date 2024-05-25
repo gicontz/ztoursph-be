@@ -43,6 +43,7 @@
     "pdfkit": "^0.14.0",
     "pdfkit-table": "^0.1.99",
     "pg": "^8.11.3",
+    "qrcode": "^1.5.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20"
@@ -56,6 +57,7 @@
     "@types/node": "^20.3.1",
     "@types/nodemailer": "^6.4.15",
     "@types/pdfkit": "^0.13.4",
+    "@types/qrcode": "^1.5.5",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

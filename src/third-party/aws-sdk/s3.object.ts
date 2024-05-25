@@ -10,6 +10,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import config from '../../config/config';
+import { Readable } from 'stream';
 
 export type TFile = {
   bucketname: string;
@@ -64,5 +65,26 @@ export class S3Service {
     );
 
     return data;
+  }
+
+  async getObjectBuffer(Key: string, Bucket: string): Promise<Buffer> {
+    const command = new GetObjectCommand({
+      Bucket,
+      Key,
+    });
+
+    try {
+      const { Body } = await this.s3.send(command);
+      const stream = Body as Readable;
+      const chunks = [];
+
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      return Buffer.concat(chunks);
+    } catch (error) {
+      throw error;
+    }
   }
 }

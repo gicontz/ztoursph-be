@@ -1,5 +1,13 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
+import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TResponseData } from 'src/http.types';
 import { UsersService } from 'src/users/users.service';
 import {
@@ -42,6 +50,7 @@ export class CheckoutController {
   ) {}
 
   private cnfg = config();
+  private templatePath = 'src/assets/templates/booking-confirmation.html';
 
   @Post('/trips')
   @ApiBody({
@@ -133,6 +142,7 @@ export class CheckoutController {
     }, {});
 
     const pdfData: TPDFItenerary = {
+      bookingId: null,
       referenceNumber: bookingInfo.reference_id,
       firstName: userInfo.first_name,
       middleInitial: userInfo.middle_init,
@@ -321,7 +331,7 @@ export class CheckoutController {
             id: bookingInfo.user_id,
           });
 
-          const itineraryUri = await this.s3Service.getPDF(
+          const itineraryBuffer = await this.s3Service.getPdfBuffer(
             bookingInfo.itinerary,
           );
 
@@ -329,8 +339,16 @@ export class CheckoutController {
           await this.smtService.sendEmail({
             to: [user.email],
             from: process.env.EMAIL_USERNAME,
-            subject: `[${bookingInfo.reference_id}] - ZTours Philippines Booking Confirmation`,
-            html: `Thank you for booking your trip with us. Your booking reference number is ${bookingInfo.reference_id}. <br /> Click and download the itinerary <a href="${itineraryUri}">here</a>`,
+            attachments: [
+              {
+                filename: `Booking Confirmation - ${bookingInfo.reference_id.toUpperCase()}.pdf`,
+                content: itineraryBuffer,
+              },
+            ],
+            subject: `[${bookingInfo.reference_id.toUpperCase()}] - ZTours Philippines Booking Confirmation`,
+            html: {
+              path: this.templatePath,
+            },
           });
 
           delete paymentInfo.success_response;
@@ -445,5 +463,34 @@ export class CheckoutController {
         ...totals,
       },
     };
+  }
+
+  @Get('/email')
+  @ApiQuery({ name: 'email', required: true })
+  @ApiQuery({ name: 'bookingId', required: false })
+  async sendEmail(
+    @Query('email') email: string,
+    @Query('bookingId') bookingId?: string,
+  ) {
+    const bId = bookingId ?? '54e6078b-6812-45f2-a57e-181389553254';
+    const bookingInfo = await this.bookingService.findOne(bId);
+    const itineraryBuffer = await this.s3Service.getPdfBuffer(
+      bookingInfo.itinerary,
+    );
+
+    // const htmlstream = fs.createReadStream('content.html');
+
+    await this.smtService.sendEmail({
+      from: process.env.EMAIL_USERNAME,
+      to: [email],
+      subject: `[${bookingInfo.reference_id}] - ZTours Philippines Booking Confirmation`,
+      html: { path: this.templatePath },
+      attachments: [
+        {
+          filename: 'Booking Confirmation.pdf',
+          content: itineraryBuffer,
+        },
+      ],
+    });
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
+import * as QRCode from 'qrcode';
 
 @Injectable()
 export class PdfService {
@@ -10,7 +11,10 @@ export class PdfService {
     filename: string,
     bucketname?: string | undefined,
   ): Promise<TPDFMeta> {
-    const doc = this.templatePDFItenerary(content);
+    const bookingId = content.bookingId ?? content.referenceNumber;
+    const bookingUri = `https://ztoursph.com/booking/${bookingId}`;
+    const qrCode = await QRCode.toDataURL(bookingUri);
+    const doc = this.templatePDFItenerary({ ...content, qrCode });
     const buffer = await this.streamToBuffer(doc);
 
     return {
@@ -21,7 +25,9 @@ export class PdfService {
     };
   }
 
-  private templatePDFItenerary(content: TPDFItenerary): PDFKit.PDFDocument {
+  private templatePDFItenerary(
+    content: TPDFItenerary & { qrCode: string },
+  ): PDFKit.PDFDocument {
     const {
       referenceNumber,
       lastName,
@@ -37,6 +43,7 @@ export class PdfService {
       booked_tours,
       grandTotal,
       fees,
+      qrCode,
     } = content;
 
     const allGuests = Object.values(guests).flat();
@@ -73,7 +80,8 @@ export class PdfService {
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
     const FONT_POPPINS = 'src/assets/fonts/Poppins-Regular.ttf';
-    const FONT_JOSEFINSANS = 'src/assets/fonts/JosefinSans.ttf';
+    // const FONT_JOSEFINSANS = 'src/assets/fonts/JosefinSans.ttf';
+    const FONT_JOSEFINSANS_BOLD = 'src/assets/fonts/JosefinSans-Bold.ttf';
     const FONT_POPPINS_BOLD = 'src/assets/fonts/Poppins-Bold.ttf';
     const JUSTIFY_END = doc.page.width - paper.margin;
     const ALIGN_END = doc.page.height - paper.margin;
@@ -100,37 +108,26 @@ export class PdfService {
         .text(text.toString(), position?.x, position?.y, {
           width: options?.width,
           align: options?.align || 'left',
+          lineGap: options?.lineGap || 0,
           ...options,
         });
     };
 
     const div_1 = (x, y) => {
       configureTextContent({
-        font: FONT_JOSEFINSANS,
+        font: FONT_JOSEFINSANS_BOLD,
         size: FONT_SIZE.large,
         position: {
-          x: x + 90 + paper.margin,
+          x: x + 360 + paper.margin,
           y: y + paper.margin,
         },
-        text: 'Itinerary',
+        text: 'Voucher',
+        options: { width: 200, align: 'center' },
       });
 
-      configureTextContent({
-        size: FONT_SIZE.default,
-        position: {
-          x: x + 90 + paper.margin,
-          y: y + paper.margin + 36,
-        },
-        text: `Booking Reference Number: ${referenceNumber}`,
-      });
-
-      configureTextContent({
-        size: FONT_SIZE.default,
-        position: { x: x + 90 + paper.margin, y: y + paper.margin + 49 },
-        text: `Date: ${new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'medium',
-          timeZone: 'Asia/Manila',
-        }).format(new Date())}`,
+      doc.image(qrCode, x + 410 + paper.margin, y + paper.margin + 36, {
+        width: 100,
+        height: 100,
       });
 
       doc.image(assets.logo, 0, y + paper.margin - 10, {
@@ -141,18 +138,18 @@ export class PdfService {
       configureTextContent({
         size: FONT_SIZE.default,
         text: 'RIZAL ST BRGY MALIGAYA EL NIDO, PALAWAN PHILIPPINES 5313',
-        font: 'Helvetica',
-        position: { x: JUSTIFY_END + x, y: y + paper.margin },
-        options: { width: 200, align: 'left' },
+        font: FONT_POPPINS,
+        position: { x: x + 280, y: y },
+        options: { width: 200, align: 'left', lineGap: -2 },
       });
 
       configureTextContent({
         size: FONT_SIZE.default,
         text: 'Email: ztoursph@gmail.com',
-        font: 'Helvetica',
+        font: FONT_POPPINS,
         position: {
-          x: JUSTIFY_END + x,
-          y: y + paper.margin + 23,
+          x: x + 280,
+          y: y + 25,
         },
         options: { width: 200, align: 'left' },
       });
@@ -160,10 +157,10 @@ export class PdfService {
       configureTextContent({
         size: FONT_SIZE.default,
         text: 'Whatsapp: +639664428625',
-        font: 'Helvetica',
+        font: FONT_POPPINS,
         position: {
-          x: JUSTIFY_END + x,
-          y: y + paper.margin + 21 + 13,
+          x: x + 280,
+          y: y + 36,
         },
         options: { width: 200, align: 'left' },
       });
@@ -171,8 +168,8 @@ export class PdfService {
       configureTextContent({
         size: FONT_SIZE.default,
         text: 'Office number: +639664428625',
-        font: 'Helvetica',
-        position: { x: JUSTIFY_END + x, y: y + paper.margin + 21 + 13 * 2 },
+        font: FONT_POPPINS,
+        position: { x: x + 280, y: y + 47 },
         options: { width: 200, align: 'left' },
       });
     };
@@ -278,24 +275,6 @@ export class PdfService {
         options: { width: 100 },
       });
 
-      // // Departure Date Value
-      // configureTextContent({
-      //   text: eta,
-      //   font: FONT_POPPINS,
-      //   size: fontSize.medium,
-      //   position: { x: JUSTIFY_END + x - 30, y: y + 10 },
-      //   options: { width: 80 },
-      // });
-
-      // // ETA Value
-      // configureTextContent({
-      //   text: etd,
-      //   font: FONT_POPPINS,
-      //   size: fontSize.medium,
-      //   position: { x: JUSTIFY_END + x - 30, y: y + 5 },
-      //   options: { width: 80 },
-      // });
-
       //Boilerplates
       configureTextContent({
         text: 'Lead Guest Name:',
@@ -369,21 +348,12 @@ export class PdfService {
         options: { width: 80 },
       });
 
-      // configureTextContent({
-      //   text: 'ETA: ',
-      //   font: FONT_POPPINS_BOLD,
-      //   size: fontSize.medium,
-      //   position: { x: JUSTIFY_END + x - 40, y: y + 5 },
-      //   options: { width: 80 },
-      // });
-
-      // configureTextContent({
-      //   text: 'ETD: ',
-      //   font: FONT_POPPINS_BOLD,
-      //   size: fontSize.medium,
-      //   position: { x: JUSTIFY_END + x - 40, y: y + 10 },
-      //   options: { width: 80 },
-      // });
+      configureTextContent({
+        size: FONT_SIZE.default,
+        font: FONT_POPPINS_BOLD,
+        position: { x: JUSTIFY_END + x - 175, y: y + 13 },
+        text: `Booking Reference Number: ${referenceNumber}`,
+      });
     };
 
     const div_5 = async (x, y) => {
@@ -400,7 +370,7 @@ export class PdfService {
             },
           },
           { label: 'Tour Name', property: 'title', width: 190 },
-          { label: 'Time', property: 'time', width: 90 },
+          { label: 'Time', property: 'pickup_time', width: 90 },
           { label: 'Pax', property: 'pax', width: 90 },
           {
             label: 'Sub-Total',
@@ -441,9 +411,9 @@ export class PdfService {
       await doc.table(table, {
         x: x + paper.margin,
         y: y,
-        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareHeader: () => doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default),
         prepareRow() {
-          return doc.font('Helvetica').fontSize(FONT_SIZE.default);
+          return doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default);
         },
         padding: [5, 5, 5, 5],
       });
@@ -545,8 +515,8 @@ export class PdfService {
       await doc.table(table, {
         x: x + paper.margin,
         // y: y + paper.margin + 40,
-        prepareHeader: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
-        prepareRow: () => doc.font('Helvetica').fontSize(FONT_SIZE.default),
+        prepareHeader: () => doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default),
+        prepareRow: () => doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default),
         padding: [5, 5, 5, 5],
       });
     };
@@ -588,7 +558,7 @@ export class PdfService {
         await doc.table(eachTable, {
           x: x + paper.margin,
           prepareHeader: () =>
-            doc.font('Helvetica').fontSize(FONT_SIZE.default),
+            doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default),
           prepareRow: () => {
             return doc.font(FONT_POPPINS).fontSize(FONT_SIZE.default);
           },

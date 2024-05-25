@@ -4,7 +4,7 @@ export class TSendEmail {
 
 export type TAttachment = {
   filename: string;
-  content: Buffer;
+  content: Buffer | string;
 };
 
 export type MailOptions = {

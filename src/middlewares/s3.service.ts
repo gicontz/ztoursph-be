@@ -14,4 +14,9 @@ export class S3BucketService {
   async getPDF(Key) {
     return this.getImage(Key);
   }
+
+  async getPdfBuffer(Key) {
+    const buffer = await this.s3Service.getObjectBuffer(Key, this.BUCKET_NAME);
+    return buffer;
+  }
 }

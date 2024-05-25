@@ -1,4 +1,5 @@
 export class TPDFItenerary {
+  readonly bookingId: string;
   readonly referenceNumber: string;
   readonly firstName: string;
   readonly middleInitial?: string;
