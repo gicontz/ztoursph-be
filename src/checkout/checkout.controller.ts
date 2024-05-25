@@ -34,6 +34,8 @@ import { S3Service } from 'src/third-party/aws-sdk/s3.object';
 import { PdfService } from 'src/pdf/pdf.service';
 import { NameSuffix, TPDFItenerary } from 'src/pdf/pdf.dto';
 import { SmtpService } from 'src/third-party/smtp/smtp.service';
+import { ToursService } from 'src/tours/tours.service';
+import { PackagesService } from 'src/packages/packages.service';
 
 @ApiTags('Checkout')
 @Controller('checkout')
@@ -47,6 +49,9 @@ export class CheckoutController {
     private readonly s3ServiceMiddleware: S3Service,
     private readonly generateItinerary: PdfService,
     private readonly smtService: SmtpService,
+    private readonly pdfService: PdfService,
+    private readonly tourService: ToursService,
+    private readonly packageService: PackagesService,
   ) {}
 
   private cnfg = config();
@@ -330,24 +335,10 @@ export class CheckoutController {
             id: bookingInfo.user_id,
           });
 
-          const itineraryBuffer = await this.s3Service.getPdfBuffer(
-            bookingInfo.itinerary,
-          );
-
           // Send Confirmation Email to User
-          await this.smtService.sendEmail({
-            to: [user.email],
-            from: process.env.EMAIL_USERNAME,
-            attachments: [
-              {
-                filename: `Booking Confirmation - ${bookingInfo.reference_id.toUpperCase()}.pdf`,
-                content: itineraryBuffer,
-              },
-            ],
-            subject: `[${bookingInfo.reference_id.toUpperCase()}] - ZTours Philippines Booking Confirmation`,
-            html: {
-              path: this.templatePath,
-            },
+          await this.sendBookingConfirmationEmail({
+            email: user.email,
+            bookingId,
           });
 
           delete paymentInfo.success_response;
@@ -471,22 +462,63 @@ export class CheckoutController {
     @Query('email') email: string,
     @Query('bookingId') bookingId?: string,
   ) {
-    const bId = bookingId ?? '54e6078b-6812-45f2-a57e-181389553254';
+    await this.sendBookingConfirmationEmail({ email, bookingId });
+    return {
+      status: HttpStatus.OK,
+      message: 'Email Sent!',
+    };
+  }
+
+  private async sendBookingConfirmationEmail(data: {
+    email: string;
+    bookingId: string;
+  }) {
+    const { email, bookingId } = data;
+    const bId = bookingId ?? '36159ba9-5423-4ee7-9e86-b7044a74c404';
     const bookingInfo = await this.bookingService.findOne(bId);
-    const itineraryBuffer = await this.s3Service.getPdfBuffer(
+    const voucherBuffer = await this.s3Service.getPdfBuffer(
       bookingInfo.itinerary,
     );
+    const theIds = JSON.parse(bookingInfo.packages).map((p) => p.tripId);
+    const packageIds = theIds.filter((d: string) => d.length === 36);
+    const tourIds = theIds
+      .filter((d: string) => d.length !== 36)
+      .map((d) => parseInt(d, 10));
+
+    const toursInfo = await this.tourService.findByIds(tourIds);
+    const packagesInfo = await this.packageService.findByIds(packageIds);
+
+    const allTours = [
+      ...toursInfo.map((t) => ({
+        title: t.tour_title,
+        content: t.package_details,
+      })),
+      ...packagesInfo.map((p) => ({
+        title: p.package_title,
+        content: p.package_details,
+      })),
+    ];
+
+    const fileName = `Package-Details-${bookingInfo.reference_id}.pdf`;
+
+    const pdf = await this.pdfService.generateTourDetails(allTours, fileName);
+
+    const itineraryBuffer = pdf.buffer;
 
     // const htmlstream = fs.createReadStream('content.html');
 
     await this.smtService.sendEmail({
       from: process.env.EMAIL_USERNAME,
       to: [email],
-      subject: `[${bookingInfo.reference_id}] - ZTours Philippines Booking Confirmation`,
+      subject: `[${bookingInfo.reference_id.toUpperCase()}] - ZTours Philippines Booking Confirmation`,
       html: { path: this.templatePath },
       attachments: [
         {
-          filename: 'Booking Confirmation.pdf',
+          filename: `Booking Confirmation - ${bookingInfo.reference_id.toUpperCase()}.pdf`,
+          content: voucherBuffer,
+        },
+        {
+          filename: `Itinerary - ${bookingInfo.reference_id.toUpperCase()}.pdf`,
           content: itineraryBuffer,
         },
       ],

@@ -4,6 +4,15 @@ import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
 import * as QRCode from 'qrcode';
 import config from 'src/config/config';
+import { compile } from 'html-to-text';
+
+interface ConfigureTextContentProps {
+  text: any;
+  font?: string;
+  size?: number;
+  position?: { x?: number; y?: number };
+  options?: PDFKit.Mixins.TextOptions;
+}
 
 @Injectable()
 export class PdfService {
@@ -12,7 +21,7 @@ export class PdfService {
   async generateItenerary(
     content: TPDFItenerary,
     filename: string,
-    bucketname?: string | undefined,
+    bucketname?: string,
   ): Promise<TPDFMeta> {
     const bookingUri = `${this.cnfg.site.domain}/booking-confirmation?reference_id=${content.referenceNumber}&email=${content.email}`;
     const qrCode = await QRCode.toDataURL(bookingUri);
@@ -25,6 +34,75 @@ export class PdfService {
       buffer: buffer,
       mimetype: 'application/pdf',
     };
+  }
+
+  async generateTourDetails(
+    content: Array<{ title: string; content: string }>,
+    filename: string,
+    bucketname?: string,
+  ): Promise<TPDFMeta> {
+    const doc = this.templatePDFTourDetails(content);
+    const buffer = await this.streamToBuffer(doc);
+
+    return {
+      bucketname: bucketname || process.env.AWS_S3_BUCKET,
+      filename: filename,
+      buffer: buffer,
+      mimetype: 'application/pdf',
+    };
+  }
+
+  private templatePDFTourDetails(
+    content: Array<{ title: string; content: string }>,
+  ): PDFKit.PDFDocument {
+    const paper = {
+      size: 'letter',
+      margin: 30,
+    };
+    const options = {
+      wordwrap: 130,
+    };
+    const compiledConvert = compile(options);
+    const doc = new PDFKit();
+
+    const assets = {
+      logo: 'src/assets/images/logo.png',
+    };
+
+    const FONT_POPPINS = 'src/assets/fonts/Poppins-Regular.ttf';
+    const FONT_JOSEFINSANS_BOLD = 'src/assets/fonts/JosefinSans-Bold.ttf';
+    // const FONT_POPPINS_BOLD = 'src/assets/fonts/Poppins-Bold.ttf';
+    const JUSTIFY_END = doc.page.width - paper.margin;
+    const ALIGN_END = doc.page.height - paper.margin;
+    // const FONT_SIZE = { small: 7, default: 10, medium: 20, large: 40 };
+    const pageWriter = (
+      d: { title: string; content: string },
+      newPaper = true,
+    ) => {
+      if (newPaper) doc.addPage(paper);
+      doc
+        .font(FONT_JOSEFINSANS_BOLD)
+        .fontSize(20)
+        .text(d.title, paper.margin, paper.margin, { align: 'center' });
+      const htmlText = [d.content].map(compiledConvert)[0];
+      doc
+        .font(FONT_POPPINS)
+        .fontSize(10)
+        .text(htmlText, paper.margin, paper.margin + 50);
+      doc.image(
+        assets.logo,
+        JUSTIFY_END - paper.margin - 50,
+        ALIGN_END - paper.margin - 50,
+        {
+          width: 100,
+        },
+      );
+    };
+    const firstPage = content.splice(0, 1);
+    pageWriter(firstPage[0], false);
+    content.forEach((text) => pageWriter(text));
+    doc.end();
+    return doc;
   }
 
   private templatePDFItenerary(
@@ -82,20 +160,11 @@ export class PdfService {
     const fontSize = { small: 2, default: 3, medium: 4, large: 10 };
 
     const FONT_POPPINS = 'src/assets/fonts/Poppins-Regular.ttf';
-    // const FONT_JOSEFINSANS = 'src/assets/fonts/JosefinSans.ttf';
     const FONT_JOSEFINSANS_BOLD = 'src/assets/fonts/JosefinSans-Bold.ttf';
     const FONT_POPPINS_BOLD = 'src/assets/fonts/Poppins-Bold.ttf';
     const JUSTIFY_END = doc.page.width - paper.margin;
     const ALIGN_END = doc.page.height - paper.margin;
     const FONT_SIZE = { small: 7, default: 10, medium: 20, large: 40 };
-
-    interface ConfigureTextContentProps {
-      text: any;
-      font?: string;
-      size?: number;
-      position?: { x?: number; y?: number };
-      options?: PDFKit.Mixins.TextOptions;
-    }
 
     const configureTextContent = ({
       text,
@@ -158,7 +227,7 @@ export class PdfService {
 
       configureTextContent({
         size: FONT_SIZE.default,
-        text: 'Whatsapp: +639664428625',
+        text: 'Whatsapp: +63966-442-8625',
         font: FONT_POPPINS,
         position: {
           x: x + 280,
@@ -169,7 +238,7 @@ export class PdfService {
 
       configureTextContent({
         size: FONT_SIZE.default,
-        text: 'Office number: +639664428625',
+        text: 'Office number: +63962-078-7353',
         font: FONT_POPPINS,
         position: { x: x + 280, y: y + 47 },
         options: { width: 200, align: 'left' },

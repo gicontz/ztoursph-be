@@ -10,9 +10,18 @@ import { ToursService } from 'src/tours/tours.service';
 import { PackagesService } from 'src/packages/packages.service';
 import { BookingsService } from 'src/bookings/bookings.service';
 import { BookingModel } from 'src/bookings/bookings.model';
+import { UsersService } from 'src/users/users.service';
+import { UserModel } from 'src/users/users.model';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TourModel, PackageModel, BookingModel])],
+  imports: [
+    TypeOrmModule.forFeature([
+      TourModel,
+      PackageModel,
+      BookingModel,
+      UserModel,
+    ]),
+  ],
   controllers: [PdfController],
   exports: [PdfService],
   providers: [
@@ -22,6 +31,7 @@ import { BookingModel } from 'src/bookings/bookings.model';
     ToursService,
     PackagesService,
     BookingsService,
+    UsersService,
   ],
 })
 export class PdfModule {}
