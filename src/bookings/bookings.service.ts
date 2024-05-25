@@ -21,6 +21,16 @@ export class BookingsService {
     return this.bookingRepository.findOneBy({ id });
   }
 
+  findByRef(data: {
+    user_id: string;
+    reference_id: string;
+  }): Promise<BookingModel | null> {
+    return this.bookingRepository.findOneBy({
+      user_id: data.user_id,
+      reference_id: data.reference_id,
+    });
+  }
+
   findAll(userId: string): Promise<BookingModel[]> {
     return this.bookingRepository.find({ where: { user_id: userId } });
   }

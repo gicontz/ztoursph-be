@@ -30,13 +30,37 @@ export class BookingsController {
   ) {}
 
   @Post('/info')
-  @ApiBody({ required: true })
+  @ApiBody({
+    required: true,
+    examples: {
+      example1: {
+        value: {
+          booking: {
+            id: 'not required',
+            email: 'string',
+            reference_id: 'string',
+          },
+        },
+      },
+    },
+  })
   async getBooking(
-    @Body('booking') booking: { id: string },
+    @Body('booking')
+    booking: {
+      id?: string;
+      email?: string;
+      reference_id?: string;
+    },
   ): Promise<TResponseData> {
     const bookingId = booking.id;
     try {
-      const bookingInfo = await this.bookingService.findOne(bookingId);
+      const userInfo = await this.userService.findOne({ email: booking.email });
+      const bookingInfo = bookingId
+        ? await this.bookingService.findOne(bookingId)
+        : await this.bookingService.findByRef({
+            user_id: userInfo.id,
+            reference_id: booking.reference_id.toLowerCase(),
+          });
       const user = await this.userService.findOne({ id: bookingInfo.user_id });
       const itineraryUri = await this.s3Service.getPDF(bookingInfo.itinerary);
 
