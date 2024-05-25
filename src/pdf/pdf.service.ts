@@ -3,16 +3,18 @@ import PDFKit from 'pdfkit-table';
 import { TPDFItenerary, TPDFMeta } from './pdf.dto';
 import { format } from 'date-fns/format';
 import * as QRCode from 'qrcode';
+import config from 'src/config/config';
 
 @Injectable()
 export class PdfService {
+  private cnfg = config();
+
   async generateItenerary(
     content: TPDFItenerary,
     filename: string,
     bucketname?: string | undefined,
   ): Promise<TPDFMeta> {
-    const bookingId = content.bookingId ?? content.referenceNumber;
-    const bookingUri = `https://ztoursph.com/booking/${bookingId}`;
+    const bookingUri = `${this.cnfg.site.domain}/booking-confirmation?reference_id=${content.referenceNumber}&email=${content.email}`;
     const qrCode = await QRCode.toDataURL(bookingUri);
     const doc = this.templatePDFItenerary({ ...content, qrCode });
     const buffer = await this.streamToBuffer(doc);

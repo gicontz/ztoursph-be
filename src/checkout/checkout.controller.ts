@@ -142,7 +142,6 @@ export class CheckoutController {
     }, {});
 
     const pdfData: TPDFItenerary = {
-      bookingId: null,
       referenceNumber: bookingInfo.reference_id,
       firstName: userInfo.first_name,
       middleInitial: userInfo.middle_init,

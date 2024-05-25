@@ -21,6 +21,9 @@ export default () => ({
       kidsUnderSeven: parseInt(process.env.KID_UNDER_7_DISCOUNT, 10) || 20,
     },
   },
+  site: {
+    domain: process.env.DOMAIN,
+  },
   aws: {
     s3: {
       bucketName: process.env.AWS_S3_BUCKET_NAME,
