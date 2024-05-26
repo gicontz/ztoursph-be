@@ -128,7 +128,7 @@ export class CheckoutController {
 
     const bookingInfo = {
       packages: packages as any,
-      total_amt: totalAmts.totalAmt,
+      total_amt: totalAmts.totalAmt + totalAmts.processingFee,
       user_id: userInfo.id,
       paymentStatus: PaymentStatus.UNPAID,
       reference_id: uuidTo8Bits(),
