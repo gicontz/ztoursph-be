@@ -3,6 +3,7 @@ export type TPaymentResponse = {
   id: string;
   isPaid: boolean;
   status: TPaymentStatus;
+  paymentStatus: TPaymentStatus;
   amount: string;
   currency: string;
   canVoid: boolean;
