@@ -343,6 +343,8 @@ export class CheckoutController {
             id: bookingInfo.user_id,
           });
 
+          console.log(user, bookingId);
+
           // Send Confirmation Email to User
           await this.sendBookingConfirmationEmail({
             email: user.email,
@@ -490,7 +492,7 @@ export class CheckoutController {
     bookingId: string;
   }) {
     const { email, bookingId } = data;
-    const bId = bookingId ?? '36159ba9-5423-4ee7-9e86-b7044a74c404';
+    const bId = bookingId;
     const bookingInfo = await this.bookingService.findOne(bId);
     const voucherBuffer = await this.s3Service.getPdfBuffer(
       bookingInfo.itinerary,
