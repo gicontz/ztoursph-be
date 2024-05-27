@@ -41,8 +41,9 @@ export class BookingsService {
     return this.bookingRepository.save(info);
   }
 
-  update(bookingInfo: Partial<TBooking>): Promise<BookingModel> {
-    return this.bookingRepository.save(bookingInfo as any);
+  async update(bookingInfo: Partial<TBooking>): Promise<BookingModel> {
+    await this.bookingRepository.save(bookingInfo as any);
+    return this.bookingRepository.findOneBy({ id: bookingInfo.id });
   }
 
   async calculateTotalAmts(data: TPreCheckout): Promise<TCalculation> {
