@@ -184,6 +184,13 @@ export class CheckoutController {
       itinerary: itineraryFileName,
     });
 
+    await this.smtService.sendEmail({
+      from: process.env.EMAIL_USERNAME,
+      to: ['ztoursph@gmail.com', 'gimelcontz@gmail.com'],
+      subject: `[${newBooking.reference_id.toUpperCase()}] - Booking has been placed.`,
+      html: 'Check Dashboard - https://ztoursphprod.retool.com/apps/eb735b66-1abf-11ef-a874-b738ef302dc7/Z%20Tours%20PH%20Dashboard%20(PROD)',
+    });
+
     return {
       status: HttpStatus.ACCEPTED,
       message: 'Trips Checkout Successfully!',
