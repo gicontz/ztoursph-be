@@ -12,4 +12,4 @@ docker rm $(docker ps -a -q) --force
 
 # Build and run the app
 docker build -t ztoursph-service .
-docker run -d -p 3001:3001 --name ztoursph-app ztoursph-service
+docker run -d --restart unless-stopped -p 3001:3001 --name ztoursph-app ztoursph-service
