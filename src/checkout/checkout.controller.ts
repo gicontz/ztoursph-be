@@ -185,7 +185,7 @@ export class CheckoutController {
     });
 
     await this.smtService.sendEmail({
-      from: process.env.EMAIL_USERNAME,
+      from: this.cnfg.email.notifSender,
       to: this.cnfg.email.notifRecipients,
       subject: `[${newBooking.reference_id.toUpperCase()}] - Booking has been placed.`,
       html: 'Check Dashboard - https://ztoursphprod.retool.com/apps/eb735b66-1abf-11ef-a874-b738ef302dc7/Z%20Tours%20PH%20Dashboard%20(PROD)',
@@ -350,7 +350,7 @@ export class CheckoutController {
           });
 
           await this.smtService.sendEmail({
-            from: process.env.EMAIL_USERNAME,
+            from: this.cnfg.email.notifSender,
             to: this.cnfg.email.notifRecipients,
             subject: `[${bookingInfo.reference_id.toUpperCase()}] - Booking has been PAID.`,
             html: 'Check Dashboard - https://ztoursphprod.retool.com/apps/eb735b66-1abf-11ef-a874-b738ef302dc7/Z%20Tours%20PH%20Dashboard%20(PROD)',
@@ -524,7 +524,7 @@ export class CheckoutController {
     // const htmlstream = fs.createReadStream('content.html');
 
     await this.smtService.sendEmail({
-      from: process.env.EMAIL_USERNAME,
+      from: this.cnfg.email.notifSender,
       to: [email],
       subject: `[${bookingInfo.reference_id.toUpperCase()}] - ZTours Philippines Booking Confirmation`,
       html: { path: this.templatePath },

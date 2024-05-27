@@ -25,6 +25,7 @@ export default () => ({
     domain: process.env.DOMAIN,
   },
   email: {
+    notifSender: process.env.EMAIL_USERNAME,
     notifRecipients: process.env.EMAIL_CC
       ? process.env.EMAIL_CC.split(',')
       : [],
