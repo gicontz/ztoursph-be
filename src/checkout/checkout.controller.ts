@@ -325,10 +325,11 @@ export class CheckoutController {
             status: TCheckoutPaymentStatus.SUCCESS,
             updatedAt: new Date(),
             receiptNumber: paymentResponse.receiptNumber,
-            paymentType:
-              paymentResponse.fundSource.type === 'card'
+            paymentType: paymentResponse.fundSource
+              ? paymentResponse.fundSource.type === 'card'
                 ? TPaymentType.CREDIT_CARD
-                : TPaymentType.E_WALLET,
+                : TPaymentType.E_WALLET
+              : TPaymentType.UNKNOWN,
             success_response: JSON.stringify(paymentResponse),
           });
           // Update Booking Payment Status
@@ -409,10 +410,11 @@ export class CheckoutController {
             status: TCheckoutPaymentStatus.FAILED,
             updatedAt: new Date(),
             receiptNumber: paymentResponse.errorCode,
-            paymentType:
-              paymentResponse.fundSource.type === 'card'
+            paymentType: paymentResponse.fundSource
+              ? paymentResponse.fundSource.type === 'card'
                 ? TPaymentType.CREDIT_CARD
-                : TPaymentType.E_WALLET,
+                : TPaymentType.E_WALLET
+              : TPaymentType.UNKNOWN,
             failed_response: JSON.stringify(paymentResponse),
           });
 

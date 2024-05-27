@@ -32,6 +32,7 @@ export enum TCheckoutPaymentStatus {
 export enum TPaymentType {
   CREDIT_CARD = 'CREDIT CARD',
   E_WALLET = 'E-WALLET',
+  UNKNOWN = 'UNKNOWN',
 }
 
 export type TPayment = {
