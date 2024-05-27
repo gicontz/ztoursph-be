@@ -72,6 +72,6 @@ export class MayaService {
   }
 
   public verifyPayment(res: TPaymentResponse) {
-    return res.paymentStatus;
+    return res.status;
   }
 }

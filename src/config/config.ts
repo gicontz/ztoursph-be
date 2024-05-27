@@ -24,6 +24,11 @@ export default () => ({
   site: {
     domain: process.env.DOMAIN,
   },
+  email: {
+    notifRecipients: process.env.EMAIL_CC
+      ? process.env.EMAIL_CC.split(',')
+      : [],
+  },
   aws: {
     s3: {
       bucketName: process.env.AWS_S3_BUCKET_NAME,

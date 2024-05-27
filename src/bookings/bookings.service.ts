@@ -53,6 +53,7 @@ export class BookingsService {
     const packages = await this.packageService.findByIds([
       ...(ids as string[]),
     ]);
+
     const trips: Array<{
       id: string | number;
       price: number;

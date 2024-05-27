@@ -186,7 +186,7 @@ export class CheckoutController {
 
     await this.smtService.sendEmail({
       from: process.env.EMAIL_USERNAME,
-      to: ['ztoursph@gmail.com', 'gimelcontz@gmail.com'],
+      to: this.cnfg.email.notifRecipients,
       subject: `[${newBooking.reference_id.toUpperCase()}] - Booking has been placed.`,
       html: 'Check Dashboard - https://ztoursphprod.retool.com/apps/eb735b66-1abf-11ef-a874-b738ef302dc7/Z%20Tours%20PH%20Dashboard%20(PROD)',
     });
@@ -346,6 +346,13 @@ export class CheckoutController {
           await this.sendBookingConfirmationEmail({
             email: user.email,
             bookingId,
+          });
+
+          await this.smtService.sendEmail({
+            from: process.env.EMAIL_USERNAME,
+            to: this.cnfg.email.notifRecipients,
+            subject: `[${bookingInfo.reference_id.toUpperCase()}] - Booking has been PAID.`,
+            html: 'Check Dashboard - https://ztoursphprod.retool.com/apps/eb735b66-1abf-11ef-a874-b738ef302dc7/Z%20Tours%20PH%20Dashboard%20(PROD)',
           });
 
           delete paymentInfo.success_response;
