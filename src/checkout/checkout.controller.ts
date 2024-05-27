@@ -128,7 +128,7 @@ export class CheckoutController {
 
     const bookingInfo = {
       packages: packages as any,
-      total_amt: totalAmts.totalAmt + totalAmts.processingFee,
+      total_amt: totalAmts.totalAmtTbp,
       user_id: userInfo.id,
       paymentStatus: PaymentStatus.UNPAID,
       reference_id: uuidTo8Bits(),
@@ -148,18 +148,18 @@ export class CheckoutController {
 
     const pdfData: TPDFItenerary = {
       referenceNumber: bookingInfo.reference_id,
-      firstName: userInfo.first_name,
-      middleInitial: userInfo.middle_init,
-      lastName: userInfo.last_name,
+      firstName: data.first_name,
+      middleInitial: data.middle_init,
+      lastName: data.last_name,
       suffix: NameSuffix.None,
       birthday: userInfo.birthday as unknown as string,
-      email: userInfo.email,
-      mobileNumber1: userInfo.mobile_number1,
-      mobileNumber2: userInfo.mobile_number2,
+      email: data.userEmail,
+      mobileNumber1: data.mobile_number1,
+      mobileNumber2: data.mobile_number2,
       booking_date: new Date().toISOString(),
       guests: guestsPerTour,
       booked_tours: calculatedPackages as any,
-      nationality: userInfo.nationality,
+      nationality: data.nationality,
       grandTotal: totalAmts.totalAmtTbp,
       fees: totalAmts.processingFee,
     };
@@ -196,7 +196,12 @@ export class CheckoutController {
       message: 'Trips Checkout Successfully!',
       data: {
         ...newBooking,
-        user: userInfo,
+        user: {
+          email: data.userEmail,
+          first_name: data.first_name,
+          middle_init: data.middle_init,
+          last_name: data.last_name,
+        },
         itineraryFileUri,
       },
     };
