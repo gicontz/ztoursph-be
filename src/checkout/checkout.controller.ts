@@ -348,6 +348,7 @@ export class CheckoutController {
             email: user.email,
             bookingId,
           });
+          console.log(bookingInfo.reference_id);
 
           await this.smtService.sendEmail({
             from: this.cnfg.email.notifSender,
