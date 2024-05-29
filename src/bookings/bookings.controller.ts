@@ -47,22 +47,22 @@ export class BookingsController {
   async getBooking(
     @Body('booking')
     booking: {
-      id?: string;
       email?: string;
       reference_id?: string;
     },
   ): Promise<TResponseData> {
-    const bookingId = booking.id;
     try {
       const userInfo = await this.userService.findOne({ email: booking.email });
-      const bookingInfo = bookingId
-        ? await this.bookingService.findOne(bookingId)
-        : await this.bookingService.findByRef({
-            user_id: userInfo.id,
-            reference_id: booking.reference_id.toLowerCase(),
-          });
+      const bookingInfo = await this.bookingService.findByRef({
+        user_id: userInfo.id,
+        reference_id: booking.reference_id.toLowerCase(),
+      });
       const user = await this.userService.findOne({ id: bookingInfo.user_id });
       const itineraryUri = await this.s3Service.getPDF(bookingInfo.itinerary);
+      // Do not expose db ids
+      delete bookingInfo.id;
+      delete bookingInfo.user_id;
+      delete user.id;
 
       return {
         status: HttpStatus.OK,

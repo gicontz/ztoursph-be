@@ -37,6 +37,7 @@ export type TPaymentResponse = {
   errorCode?: string;
   errorMessage?: string;
   requestReferenceNumber: string;
+  source: any;
 };
 
 // Payment Expired Response from Maya

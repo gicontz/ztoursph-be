@@ -5,7 +5,6 @@ import {
   HttpStatus,
   Post,
   Query,
-  Req,
   Res,
 } from '@nestjs/common';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -294,9 +293,8 @@ export class CheckoutController {
   async verifyPayment(
     @Body() paymentResponse: TPaymentResponse,
     @Res() response: Response,
-    @Req() request: Request,
   ): Promise<Response<TResponseData>> {
-    console.log(request.headers);
+    console.log(paymentResponse.source);
     const status = this.mayaService.verifyPayment(paymentResponse);
     let bookingId = '';
 
@@ -350,8 +348,6 @@ export class CheckoutController {
           const user = await this.userService.findOne({
             id: bookingInfo.user_id,
           });
-
-          console.log(user, bookingId);
 
           // Send Confirmation Email to User
           await this.sendBookingConfirmationEmail({
