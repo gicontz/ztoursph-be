@@ -37,7 +37,10 @@ export type TPaymentResponse = {
   errorCode?: string;
   errorMessage?: string;
   requestReferenceNumber: string;
-  source: any;
+  source?: {
+    host: string;
+    'x-real-ip': string;
+  };
 };
 
 // Payment Expired Response from Maya

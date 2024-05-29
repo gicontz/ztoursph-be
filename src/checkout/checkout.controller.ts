@@ -294,7 +294,6 @@ export class CheckoutController {
     @Body() paymentResponse: TPaymentResponse,
     @Res() response: Response,
   ): Promise<Response<TResponseData>> {
-    console.log(paymentResponse.source);
     const status = this.mayaService.verifyPayment(paymentResponse);
     let bookingId = '';
 
@@ -303,6 +302,40 @@ export class CheckoutController {
       reference_id: paymentResponse.requestReferenceNumber,
       logs: JSON.stringify(paymentResponse),
     });
+
+    if (paymentResponse.source) {
+      const sourceIp = paymentResponse.source['x-real-ip'];
+      const whitelistIps = this.cnfg.maya.whitelist;
+      const isWhiteListed =
+        whitelistIps.includes(sourceIp) ||
+        whitelistIps.includes(paymentResponse.source.host);
+      if (!isWhiteListed) {
+        await this.smtService.sendEmail({
+          from: this.cnfg.email.notifSender,
+          to: this.cnfg.email.notifRecipients,
+          subject: '[HACKER ALERT!] Unauthorized Access of Payment Gateway',
+          html: `Unauthorized Access from IP: ${sourceIp} & ${paymentResponse.source.host}. Check logs for more info. CODE: ${paymentResponse.requestReferenceNumber}`,
+        });
+        return response.status(HttpStatus.BAD_REQUEST).send({
+          status: HttpStatus.BAD_REQUEST,
+          message: 'Invalid Source - Unauthorized Access!',
+        });
+      }
+      // If WhiteListed just continue
+    } else {
+      await this.smtService.sendEmail({
+        from: this.cnfg.email.notifSender,
+        to: this.cnfg.email.notifRecipients,
+        subject: '[HACKER ALERT!] Unauthorized Access of Payment Gateway',
+        html: `Directly accessed API with no source IP. Check logs for more info. CODE: ${JSON.stringify(
+          paymentResponse,
+        )}`,
+      });
+      return response.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Invalid Source - Unauthorized Access!',
+      });
+    }
 
     try {
       bookingId = (

@@ -12,6 +12,7 @@ export default () => ({
     faceApi: process.env.MAYA_PUBLIC_FACE_API,
     secretKey: process.env.MAYA_SECRET_API,
     checkoutApi: process.env.MAYA_CHECKOUT_API,
+    whitelist: process.env.MAYA_IPS ? process.env.MAYA_IPS.split(',') : [],
   },
   payments: {
     processingFee: parseInt(process.env.PROCESS_FEE_CONST, 10) || 0,
