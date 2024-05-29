@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -293,7 +294,9 @@ export class CheckoutController {
   async verifyPayment(
     @Body() paymentResponse: TPaymentResponse,
     @Res() response: Response,
+    @Req() request: Request,
   ): Promise<Response<TResponseData>> {
+    console.log(request.headers);
     const status = this.mayaService.verifyPayment(paymentResponse);
     let bookingId = '';
 
