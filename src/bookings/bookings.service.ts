@@ -48,12 +48,6 @@ export class BookingsService {
 
   async calculateTotalAmts(data: TPreCheckout): Promise<TCalculation> {
     const { booking } = data;
-    const ids = booking.map((b) => b.id);
-
-    const tours = await this.toursService.findByIds([...(ids as number[])]);
-    const packages = await this.packageService.findByIds([
-      ...(ids as string[]),
-    ]);
 
     const trips: Array<{
       id: string | number;
@@ -63,26 +57,14 @@ export class BookingsService {
       discount: number;
       pax: number;
       ages: number[];
-    }> = [
-      ...tours.map(({ id, price, discount, min_pax, per_pax_price }) => ({
-        id,
-        price,
-        min_pax,
-        per_pax_price,
-        discount,
-        pax: booking.find((b) => b.id === id).pax,
-        ages: booking.find((b) => b.id === id).ages,
-      })),
-      ...packages.map(({ id, price, discount, min_pax, per_pax_price }) => ({
-        id,
-        price,
-        min_pax,
-        per_pax_price,
-        discount,
-        pax: booking.find((b) => b.id === id).pax,
-        ages: booking.find((b) => b.id === id).ages,
-      })),
-    ];
+    }> = [];
+
+    for (const b of booking) {
+      const tour = await this.toursService.findById(b.id as number);
+      const pkg = await this.packageService.findById(b.id as string);
+      if (tour) trips.push({ ...tour, pax: b.pax, ages: b.ages });
+      if (pkg) trips.push({ ...pkg, pax: b.pax, ages: b.ages });
+    }
 
     const getSubTotal = (prices: {
       price: number;
@@ -105,7 +87,7 @@ export class BookingsService {
         const additionalPax = floatPax - min_pax;
         return discountedPrice + additionalPax * per_pax_price;
       }
-      return discountedPrice * floatPax;
+      return Math.ceil(discountedPrice * floatPax);
     };
 
     const subTotals = trips.map((t) => {
@@ -126,9 +108,10 @@ export class BookingsService {
 
     const totalAmt = subTotals.reduce((acc, curr) => acc + curr.subTotal, 0);
 
-    const processingFee =
+    const processingFee = Math.ceil(
       totalAmt * (this.cnfg.payments.processingFeeRates / 100) +
-      this.cnfg.payments.processingFee;
+        this.cnfg.payments.processingFee,
+    );
 
     const totalAmtTbp = totalAmt + processingFee;
 

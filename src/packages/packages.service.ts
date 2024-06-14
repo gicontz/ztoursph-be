@@ -53,6 +53,10 @@ export class PackagesService {
     return this.packageRepository.findOneBy({ package_slug: slug });
   }
 
+  findById(id: string): Promise<PackageModel | null> {
+    return this.packageRepository.findOneBy({ id });
+  }
+
   findByIds(ids: string[]): Promise<PackageModel[]> {
     const uuIds = ids.filter((id) => id.length === 36);
     if (uuIds.length === 0) return Promise.resolve([]);

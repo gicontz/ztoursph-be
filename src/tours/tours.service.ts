@@ -53,6 +53,10 @@ export class ToursService {
     return this.tourRepository.findOneBy({ tour_slug: slug });
   }
 
+  findById(id: number): Promise<TourModel | null> {
+    return this.tourRepository.findOneBy({ id });
+  }
+
   findByIds(ids: number[]): Promise<TourModel[]> {
     if (ids.length === 0) return Promise.resolve([]);
     return this.tourRepository
