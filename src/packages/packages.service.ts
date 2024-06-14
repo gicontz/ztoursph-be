@@ -54,6 +54,7 @@ export class PackagesService {
   }
 
   findById(id: string): Promise<PackageModel | null> {
+    if (id.length !== 36) return Promise.resolve(null);
     return this.packageRepository.findOneBy({ id });
   }
 

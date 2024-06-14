@@ -18,8 +18,8 @@ export default () => ({
     processingFee: parseInt(process.env.PROCESS_FEE_CONST, 10) || 0,
     processingFeeRates: parseInt(process.env.PROCESS_FEE_RATE, 10) || 3,
     discounts: {
-      kidsUnderFour: parseInt(process.env.KID_UNDER_4_DISCOUNT, 10) || 50,
-      kidsUnderSeven: parseInt(process.env.KID_UNDER_7_DISCOUNT, 10) || 20,
+      kidsUnderFour: parseInt(process.env.KID_UNDER_4_DISCOUNT, 10) || 0,
+      kidsUnderSeven: parseInt(process.env.KID_UNDER_7_DISCOUNT, 10) || 0,
     },
   },
   site: {
