@@ -224,11 +224,13 @@ export class CheckoutController {
   ): Promise<TResponseData> {
     // Check Booking If Exists
     try {
-      const bookingInfo = await this.bookingService.findOne(
-        paymentData.bookingId,
-      );
+      const bookingInfo = await this.bookingService.findByRef({
+        reference_id: paymentData.bookingId,
+      });
+
       const userId = bookingInfo.user_id;
       paymentData.userId = userId;
+      paymentData.bookingId = bookingInfo.id;
       // Checkout Payment if Booking Exists
       if (bookingInfo.paymentStatus === PaymentStatus.PAID) {
         return {
@@ -245,6 +247,7 @@ export class CheckoutController {
 
     try {
       const paymentInfo = await this.checkoutService.create(paymentData);
+
       const referenceId = paymentInfo.referenceId;
       const userInfo = await this.userService.findOne({
         id: paymentData.userId,
