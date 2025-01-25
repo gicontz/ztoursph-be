@@ -22,7 +22,7 @@ export class BookingsService {
   }
 
   findByRef(data: {
-    user_id: string;
+    user_id?: string;
     reference_id: string;
   }): Promise<BookingModel | null> {
     return this.bookingRepository.findOneBy({
@@ -112,6 +112,8 @@ export class BookingsService {
       totalAmt * (this.cnfg.payments.processingFeeRates / 100) +
         this.cnfg.payments.processingFee,
     );
+
+    console.log('processingFee', processingFee);
 
     const totalAmtTbp = totalAmt + processingFee;
 
